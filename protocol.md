@@ -10,8 +10,31 @@
 
 
 ## Cheese structure
-Each `Cheese` has an `index`, a `time_stamp`, a list of `transactions`, a `nonce`,  a `smell` of previous `Cheese` and its proper `smell` (a hash computed from all listed information by using *SHA1*).
-
+Each `Cheese` has an `index`, a `time_stamp`, a list of `transactions`, a `nonce`,  a `smell` of previous `Cheese` and its proper `smell` (a hash computed from all listed information by using *SHA1*). E.g
+```json
+{
+  "index": 2,
+  "timestamp": "2018-02-1 11:23:10.140996"
+  "data": {
+    "transactions": [
+      {
+        "from": "Satoshi team",
+        "to": "UJM",
+        "amount": 3
+      },
+      {        
+        "from": "Na",
+        "to": "Anh",
+        "amount": 30
+      }
+    ],
+    "nonce": 36
+  },
+  "previous_smell": "0023dd3ef6af2e7eb8272245cb8ea91b4ecfc3e60af22d8518ef0bba8b4a6b22"
+  "smell": "001edd3ef6af2e7eb8272245cb8ea91b4ecfc3e60af22d8518ef0bba8b4a6b18",
+  
+}
+```
 ## Transaction format
 Each transaction will be a JSON object detailing the sender of the coin, the receiver of the coin, and the amount of CheeseCoin that is being transferred, e.g
 ```json
