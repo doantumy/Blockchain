@@ -15,8 +15,7 @@ Each `Cheese` has an `index`, a `time_stamp`, a list of `transactions`, a `nonce
 {
   "index": 2,
   "timestamp": "2018-02-1 11:23:10.140996",
-  "data": {
-    "transactions": [
+  "transactions": [
       {
         "from": "Satoshi team",
         "to": "UJM",
@@ -28,9 +27,8 @@ Each `Cheese` has an `index`, a `time_stamp`, a list of `transactions`, a `nonce
         "amount": 30
       }
     ],
-    "nonce": 36
-  },
   "previous_smell": "0023dd3ef6af2e7eb8272245cb8ea91b4ecfc3e60af22d8518ef0bba8b4a6b22",
+  "nonce": 36,
   "smell": "001edd3ef6af2e7eb8272245cb8ea91b4ecfc3e60af22d8518ef0bba8b4a6b18"
   
 }
