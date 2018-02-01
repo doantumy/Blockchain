@@ -46,90 +46,23 @@ The algorithm must check :
 # Sequence Diagrams of P2P network
 
 ## Tracker & Member 
-```mermaid
-sequenceDiagram
-Member ->> Tracker: request to connect
-alt accepted
-Tracker -->> Member: connection accepted
-else rejected
-Tracker -->> Member: connection rejected
-end
-Member ->> Tracker: request for member list
-Tracker -->> Member: member list data
-
-Tracker ->> Member: request for status
-alt alive
-Member -->> Tracker: ALIVE
-else died
-Member --> Tracker: nothing
-end
-```
+![Sequence diagram](./img/Member_Tracker.png)
 
 
 ## Member & Member 
 
 ### Establish connection
-```mermaid
-sequenceDiagram
-Member1 ->> Member2: Request to connect
-alt accepted
-Member2 ->> Member1: Send acceptance message
-else rejected
-Member2 ->> Member1: Send rejection message
-end
-```
+![Sequence diagram](./img/connection.png)
+
 ### Exchange parts (cheese stack) & Update cheese stack
-```mermaid
-sequenceDiagram
-Member1 ->> Member2: Ask for cheese stack
-Member2 ->> Member1: Send cheese stack data
-alt if received cheese stack is longer
-Member1 ->> Member1: Update cheese stack with longer version
-else if received cheese stack is shorter
-Member1 ->> Member2: Ask to update cheese stack with longer version
-    alt agreed to update
-    Member2 ->> Member2: Update cheese stack
-    else rejected to update
-    Member2 ->> Member1: Send rejection message
-    end
-end
-```
+![Sequence diagram](./img/exchange.png)
 ### Ask for member list
-```mermaid
-sequenceDiagram
-Member1 ->> Member2: Ask for member list
-alt accepted
-Member2 ->> Member1: Send member list
-else rejected
-Member2 ->> Member1: Send rejection message
-end
-```
+![Sequence diagram](./img/memberlist.png)
 
 ### Inform the others new mined cheese
-```mermaid
-sequenceDiagram
-Member1 ->> Member2: Inform about new mined cheese block
-alt valid block
-Member2 ->> Member1: Send agreement message
-Member2 ->> Member2: Update cheese stack
-else invalid block
-Member2 ->> Member1: Send rejection message
-end
-```
+![Sequence diagram](./img/newblock.png)
 #### Ask cheese(s) from other member(s)
-```mermaid
-sequenceDiagram
-Member1 ->> Member2: Ask for cheese
-alt accepted
-Member2 ->> Member1: Send acceptance message
-Member2 ->> Member1: Broadcast transaction details
-Member2 ->> Member3: Broadcast transaction details
-Member2 ->> Member4: Broadcast transaction details
-Note right of Member2: Transaction details will be broadcast to all members in the network.
-else rejected
-Member2 ->> Member1: Send rejection message
-end
-```
+![Sequence diagram](./img/askCheese.png)
 
 # Message structure
 ## Interactions between Members and Tracker
