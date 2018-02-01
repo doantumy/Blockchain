@@ -46,23 +46,23 @@ The algorithm must check :
 # Sequence Diagrams of P2P network
 
 ## Tracker & Member 
-![Sequence diagram](./img/Member_Tracker.png)
+![Sequence diagram](./img/Member_Tracker.PNG)
 
 
 ## Member & Member 
 
 ### Establish connection
-![Sequence diagram](./img/connection.png)
+![Sequence diagram](./img/connection.PNG)
 
 ### Exchange parts (cheese stack) & Update cheese stack
-![Sequence diagram](./img/exchange.png)
+![Sequence diagram](./img/exchange.PNG)
 ### Ask for member list
-![Sequence diagram](./img/memberlist.png)
+![Sequence diagram](./img/memberlist.PNG)
 
 ### Inform the others new mined cheese
-![Sequence diagram](./img/newblock.png)
+![Sequence diagram](./img/newblock.PNG)
 #### Ask cheese(s) from other member(s)
-![Sequence diagram](./img/askCheese.png)
+![Sequence diagram](./img/askCheese.PNG)
 
 # Message structure
 ## Interactions between Members and Tracker
