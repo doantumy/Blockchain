@@ -14,7 +14,7 @@ Each `Cheese` has an `index`, a `time_stamp`, a list of `transactions`, a `nonce
 ```json
 {
   "index": 2,
-  "timestamp": "2018-02-1 11:23:10.140996"
+  "timestamp": "2018-02-1 11:23:10.140996",
   "data": {
     "transactions": [
       {
@@ -30,8 +30,8 @@ Each `Cheese` has an `index`, a `time_stamp`, a list of `transactions`, a `nonce
     ],
     "nonce": 36
   },
-  "previous_smell": "0023dd3ef6af2e7eb8272245cb8ea91b4ecfc3e60af22d8518ef0bba8b4a6b22"
-  "smell": "001edd3ef6af2e7eb8272245cb8ea91b4ecfc3e60af22d8518ef0bba8b4a6b18",
+  "previous_smell": "0023dd3ef6af2e7eb8272245cb8ea91b4ecfc3e60af22d8518ef0bba8b4a6b22",
+  "smell": "001edd3ef6af2e7eb8272245cb8ea91b4ecfc3e60af22d8518ef0bba8b4a6b18"
   
 }
 ```
@@ -53,7 +53,7 @@ Newly mined `Cheese` will be confirmed when there is at least 2 more consecutive
 ## Synchronization
 The following rules are used to keep the network in sync.
 - When a member generates a new `Cheese`, he broadcasts it to the network.
-- When a member connects to a new peer it queries for the latest `Cheese`.
+- When a member connects to a new peer he queries for the latest `Cheese`.
 - When a member encounters a `Cheese` that has an index larger than the current known `Cheese`,  he either adds the `New_Cheese` to his current `Cheese_Stack` or queries for the full `Cheese_Stack`.
 
 
@@ -101,7 +101,7 @@ The algorithm must check :
 |---|---|---|---|
 | Establish connection to other member(s) |`REQ_CONNECT`  |`CONN_ACCEPTED` or `CONN_REJECTED`|Member in the network sends request to connect to other member(s) in the net work. The requested member returns the message with connection status.|
 | Ask for member list from other member(s) | `REQ_MEM_LIST` |`MEM_LIST`|Member in the network can ask for member list from other member(s), requested member will send back a list (`MEM_LIST`) containing members in the form of text. `MEM_LIST` will be defined in the form as followed: `IP Address:Port`;`IP Address:Port` - semicolon will be used to separate between 2 addresses of member.|
-| Exchange parts (cheese stack) among members | `REQ_CS` |`CHEESE_STACK`|Members in the network may send request to ask for cheese stack from the others. The received list (`DATA`) will be defined as in followed format: `IndexNumber,TransactionDetails(sender,recipient,amount),ParentSmell,Nonce,Smell`;`IndexNumber,TransactionDetails(sender,recipient,amount),ParentSmell,Nonce,Smell`- semicolon will be used to separate between 2 blocks. The length of the list depends on the number of cheese blocks that member is storing.|
+| Exchange parts (cheese stack) among members | `REQ_CS` |`CHEESE_STACK`|Members in the network may send request to ask for cheese stack from the others. The received list (`DATA`) will be defined as in followed format: `IndexNumber,TimeStamp,TransactionDetails(sender,recipient,amount),ParentSmell,Nonce,Smell`;`IndexNumber,TimeStamp,TransactionDetails(sender,recipient,amount),ParentSmell,Nonce,Smell`- semicolon will be used to separate between 2 blocks. The length of the list depends on the number of cheese blocks that member is storing.|
 | Update cheese stack | `REQ_UPDATE_CS` | `UPDATE_CS_YES` or `UPDATE_CS_NO`|This happens after the member sent request to ask for cheese stacks from the others. After checking the received cheese stacks from the others, if any of them doesn't get the longest cheese stack, they will receive request to update their current cheese stack with longest cheese stack (`DATA`). Member may or may not accept to this proposal. `DATA` format is defined as in "Exchange parts (cheese stack) among members"|
 | Inform the others new mined cheese | `INFRM_NEW_CHEESE` |`RES_NEW_CHEESE_VALID` or `RES_NEW_CHEESE_INVALID`| When a member successfully mined a new cheese block, he will broadcast this to the network. Other members will check for the validity of the new block and send back the response to the miner and update their copy of the chain if new block is considered valid. `DATA` is defined as followed: `Sender,Recipient,Amount`|
 | Ask cheese(s) from other member(s) | `REQ_CHEESE_DATA` | `RES_CHEESE_ACCEPTED` and `RES_CHEESE_DATA` or `RES_CHEESE_REJECTED`| At anytime member in the network can send request to ask for cheese from the others. If the receiver agrees to the request, he will send a response with acceptance and broadcast the transaction data to the network (`RES_CHEESE_DATA`). If he rejects the request, a rejection message will be sent to the requestor. `DATA` is defined as in "Ask cheese(s) from other member(s)", the sender here is the member who receives the request (is being asked to send cheese), the recipient is the requestor of the request.|
