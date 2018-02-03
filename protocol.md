@@ -33,6 +33,8 @@ Each `Cheese` has an `index`, a `time_stamp`, a list of `transactions`, a `nonce
   
 }
 ```
+For `BlueCheese`- the original cheese - it is defined nearly the same with normal cheese except that there is no previous `smell`, `index` is `0` and a predefined `content`.
+
 ## Transaction format
 Each transaction will be a JSON object detailing the sender of the coin, the receiver of the coin, and the amount of CheeseCoin that is being transferred, e.g
 ```json
