@@ -26,11 +26,13 @@ class Tracker:
     def handler(self, c, a):
         while True:
             data = c.recv(1024)
+            print(data)
             if (data[0:1] == b'\x01'):
                 server_member_port = str(data[1:], 'utf-8')
                 self.server_peers.append(str(a[0]) + ':' + server_member_port)
             if (str(data, 'utf-8') == "REQ_MEM_LIST"):
                 # c.send(bytes(str(self.peers), "utf-8"))
+                print("received a request about member list")
                 peers_to_send = []
                 index = []
                 for peer in self.client_peers:
@@ -48,9 +50,8 @@ class Tracker:
             if not data:
                 print(str(a[0]) + ':' + str(a[1]), "disconnected")
                 self.connections.remove(c)
-                self.peers.remove(a[0])
+                self.client_peers.remove(str(a[0]) + ':' + str(a[1]))
                 c.close()
-                self.sendPeers()
                 break
 
     def reply_to_member(self, c):
