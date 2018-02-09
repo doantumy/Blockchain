@@ -22,10 +22,8 @@ Def Lists:
 12.
 
 '''
-my_cheese_stack = []
-trans_list = []
-reward = 1
 
+reward = 1
 
 def blue_cheese():
     index = 0
@@ -209,25 +207,29 @@ def validate_cheese_stack(received_cheese_stack_list):
         valid = validate_cheese(received_cheese_stack_list[i], received_cheese_stack_list[i+1])
         length -=1
     return valid
-
-blue_cheese_dict = blue_cheese()
-my_cheese_stack.append(blue_cheese_dict)
-
-new_trans0 = new_trans('Member 1', 'Mem 2', 300)
-miner1 = 'Miner 1'
-reward = 1
-trans_list = []
-trans_col_list = collect_trans(trans_list, new_trans0, miner1, reward)
-new_mined_json = cheese_mining(my_cheese_stack, trans_col_list)
-my_cheese_stack.append(new_mined_json)
-
-new_trans1 = new_trans('Member 2', 'Member 3', 150)
-miner2 = 'Miner 8'
-reward2 = 1
-trans_col_list = collect_trans(trans_list, new_trans1, miner2, reward2)
-
-new_mined_json1 = cheese_mining(my_cheese_stack, trans_col_list)
-my_cheese_stack.append(new_mined_json1)
-
-store_cheese_stack(my_cheese_stack, 'cheese_stack.json')
-print(load_cheese_stack('cheese_stack.json'))
+#
+# my_cheese_stack = []
+# trans_list = []
+# reward = 1
+#
+# blue_cheese_dict = blue_cheese()
+# my_cheese_stack.append(blue_cheese_dict)
+#
+# new_trans0 = new_trans('Member 1', 'Mem 2', 300)
+# miner1 = 'Miner 1'
+# reward = 1
+# trans_list = []
+# trans_col_list = collect_trans(trans_list, new_trans0, miner1, reward)
+# new_mined_json = cheese_mining(my_cheese_stack, trans_col_list)
+# my_cheese_stack.append(new_mined_json)
+#
+# new_trans1 = new_trans('Member 2', 'Member 3', 150)
+# miner2 = 'Miner 8'
+# reward2 = 1
+# trans_col_list = collect_trans(trans_list, new_trans1, miner2, reward2)
+#
+# new_mined_json1 = cheese_mining(my_cheese_stack, trans_col_list)
+# my_cheese_stack.append(new_mined_json1)
+#
+# store_cheese_stack(my_cheese_stack, 'cheese_stack.json')
+# print(load_cheese_stack('cheese_stack.json'))
