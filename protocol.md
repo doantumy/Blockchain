@@ -79,8 +79,6 @@ The algorithm must check :
 
 ### Exchange parts (cheese stack) & Update cheese stack
 ![Sequence diagram](./img/exchange.PNG)
-### Ask for member list
-![Sequence diagram](./img/memberlist.PNG)
 
 ### Inform the others new mined cheese
 ![Sequence diagram](./img/newblock.PNG)
