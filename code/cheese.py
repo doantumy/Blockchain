@@ -268,46 +268,6 @@ def key_load(private_key_file, public_key_file):
         print('New keys created.')
         return keys
 
-
-
-
-blue_cheese_dict = blue_cheese()
-my_cheese_stack.append(blue_cheese_dict)
-
-trans_list = []
-new_trans0 = new_trans('Member 1', 'Mem 2', 100)
-trans_list.append(new_trans0)
-
-miner1 = 'Miner 1'
-reward = 1
-
-#trans_col_list = collect_trans(trans_list, new_trans0, miner1, reward)
-#new_mined_json = cheese_mining(my_cheese_stack, trans_col_list)
-#my_cheese_stack.append(new_mined_json)
-
-new_trans1 = new_trans('Member 2', 'Member 3', 150)
-trans_list.append(new_trans1)
-
-miner2 = 'Miner 8'
-reward2 = 1
-#trans_col_list = collect_trans(trans_list, new_trans1, miner2, reward2)
-
-
-new_trans2 = new_trans('Member 2', 'Member 3', 200)
-trans_list.append(new_trans2)
-
-miner3 = 'Miner 8'
-reward3 = 1
-#trans_col_list = collect_trans(trans_list, new_trans2, miner3, reward3)
-
-#new_mined_json1 = cheese_mining(my_cheese_stack, trans_col_list)
-#my_cheese_stack.append(new_mined_json1)
-auto_trans(1, trans_list)
-
-
-
-#store_cheese_stack(my_cheese_stack, 'cheese_stack.json')
-#print(load_cheese_stack('cheese_stack.json'))
 '''
 str_message = 'message'
 message = str(str_message).encode('utf-8')
