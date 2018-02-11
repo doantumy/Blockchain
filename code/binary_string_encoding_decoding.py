@@ -10,7 +10,7 @@ import base64
 image_result = open('image.png', 'wb') 
 str_result=open("str.txt",'wb')
 
-image = open('bitcoin.png', 'rb')
+image = open('../img/bitcoin.png', 'rb')
 image_read = image.read() #open binary file in read mode
 image_64_encode = base64.encodestring(image_read)#encode binary to base64string
 #print(image_64_encode)
