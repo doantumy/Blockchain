@@ -2,8 +2,11 @@ import hashlib
 import json
 import datetime
 import io
+import time
+from ecdsa import VerifyingKey, SigningKey, SECP256k1, BadSignatureError
 
 # Ref: https://medium.com/crypto-currently/lets-build-the-tiniest-blockchain-e70965a248b
+# Ref: https://www.dlitz.net/software/pycrypto/doc/#introduction
 '''
 Author: DOAN Tu-My
 Def Lists:
@@ -68,7 +71,7 @@ def proof_of_work(index, time_stamp, transactions, parent_smell):
 # If they can mine the block, this reward will be his money as part of the transactions collection
 
 
-def collect_trans(trans_list, trans_details, miner, reward):
+def collect_trans(trans_list, trans_details, miner, reward=1):
     trans_details['miner'] = miner
     trans_details['reward'] = reward
     # Add the transaction details into current transaction list
@@ -156,7 +159,7 @@ def store_cheese_stack(cheese_stack, file_name):
         with io.open(file_name, 'w', encoding='utf-8') as f:
             f.write(json.dumps(cheese_stack, ensure_ascii=False))
     except IOError:
-        print("Image file %s is not found!" % file_name)
+        print("File %s is not found!" % file_name)
     raise SystemExit
 
 
@@ -166,7 +169,7 @@ def load_cheese_stack(file_name):
             cheese_stack_list = json.load(json_data)
             return cheese_stack_list
     except IOError:
-        print("Image file %s is not found!" % file_name)
+        print("File %s is not found!" % file_name)
     raise SystemExit
 
 
@@ -207,27 +210,113 @@ def validate_cheese_stack(received_cheese_stack_list):
     # Checking first cheese & second one and so on...
     while i <= length - 1 and valid == True:
         valid = validate_cheese(received_cheese_stack_list[i], received_cheese_stack_list[i+1])
-        length -=1
+        length -= 1
     return valid
+
+
+# Auto create trans after 10secs
+# Transactions list contains dict objects of random transactions
+def auto_trans(delay, transactions_list):
+    length = len(transactions_list)
+    i = 0
+    while i <= length - 1:
+        new_tran = new_trans(transactions_list[i]['from'], transactions_list[i]['to'], transactions_list[i]['amount'])
+        print(new_tran)
+        time.sleep(delay)
+        i +=1
+
+# Create public & private key random
+def key_generator():
+    # Create a hash for private key
+    hash_priv = hashlib.sha256(str('').encode('utf-8')).digest()
+    # Create Private key
+    signing_key = SigningKey.from_string(hash_priv, curve=SECP256k1)
+    private_key_string = signing_key.to_string().hex()
+    # Create public key
+    verifying_key = signing_key.get_verifying_key()
+    public_key_string = verifying_key.to_string().hex()
+    return private_key_string, public_key_string
+
+
+def signing_trans(message, private_key_string):
+    private_key = bytes.fromhex(private_key_string)
+    signing_key = SigningKey.from_string(private_key, curve=SECP256k1)
+    signature = signing_key.sign(message).hex()
+    return signature
+
+
+def verifying_trans(message, signature, public_key_string):
+    try:
+        public_key = bytes.fromhex(public_key_string)
+        verifying_key = VerifyingKey.from_string(public_key, curve=SECP256k1)
+        return verifying_key.verify(bytes.fromhex(signature), message)
+    except BadSignatureError:
+        print('BadSignatureError')
+        return False
+
+# Load keys from file if there exists
+# If not, new keys will be generated and saved to hard drive
+def key_load(private_key_file, public_key_file):
+    try:
+        private_key = open(private_key_file).read()
+        public_key = open(public_key_file).read()
+        return private_key, public_key
+    except FileNotFoundError:
+        keys = key_generator()
+        open(private_key_file, "w").write(keys[0])
+        open(public_key_file, "w").write(keys[1])
+        print('New keys created.')
+        return keys
+
+
+
 
 blue_cheese_dict = blue_cheese()
 my_cheese_stack.append(blue_cheese_dict)
 
-new_trans0 = new_trans('Member 1', 'Mem 2', 300)
+trans_list = []
+new_trans0 = new_trans('Member 1', 'Mem 2', 100)
+trans_list.append(new_trans0)
+
 miner1 = 'Miner 1'
 reward = 1
-trans_list = []
-trans_col_list = collect_trans(trans_list, new_trans0, miner1, reward)
-new_mined_json = cheese_mining(my_cheese_stack, trans_col_list)
-my_cheese_stack.append(new_mined_json)
+
+#trans_col_list = collect_trans(trans_list, new_trans0, miner1, reward)
+#new_mined_json = cheese_mining(my_cheese_stack, trans_col_list)
+#my_cheese_stack.append(new_mined_json)
 
 new_trans1 = new_trans('Member 2', 'Member 3', 150)
+trans_list.append(new_trans1)
+
 miner2 = 'Miner 8'
 reward2 = 1
-trans_col_list = collect_trans(trans_list, new_trans1, miner2, reward2)
+#trans_col_list = collect_trans(trans_list, new_trans1, miner2, reward2)
 
-new_mined_json1 = cheese_mining(my_cheese_stack, trans_col_list)
-my_cheese_stack.append(new_mined_json1)
 
-store_cheese_stack(my_cheese_stack, 'cheese_stack.json')
-print(load_cheese_stack('cheese_stack.json'))
+new_trans2 = new_trans('Member 2', 'Member 3', 200)
+trans_list.append(new_trans2)
+
+miner3 = 'Miner 8'
+reward3 = 1
+#trans_col_list = collect_trans(trans_list, new_trans2, miner3, reward3)
+
+#new_mined_json1 = cheese_mining(my_cheese_stack, trans_col_list)
+#my_cheese_stack.append(new_mined_json1)
+auto_trans(1, trans_list)
+
+
+
+#store_cheese_stack(my_cheese_stack, 'cheese_stack.json')
+#print(load_cheese_stack('cheese_stack.json'))
+'''
+str_message = 'message'
+message = str(str_message).encode('utf-8')
+keys = key_load('sk.key','vk.key')
+private = keys[0]
+public = keys[1]
+sig = signing_trans(message, private)
+print(private)
+print(public)
+print(sig)
+print(verifying_trans(message, sig, public))
+'''
