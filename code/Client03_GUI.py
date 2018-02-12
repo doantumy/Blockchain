@@ -29,24 +29,18 @@ def CheeseThread():
         my_blue_cheese = cheese.blue_cheese()
         my_cheeses.stack.append(my_blue_cheese)
 
-        new_trans0 = cheese.new_trans('Member 1', 'Mem 2', 300)
-        miner1 = member_name
-        reward_amount = cheese.reward
-
-        trans_col_list = cheese.collect_trans(my_cheeses.processed_trans_list, new_trans0, miner1, reward_amount)
+        new_trans0 = cheese.new_trans('Satoshi team', 'UJM', 300)
+        miner1 = 'Anh'
+        trans_col_list = cheese.collect_trans(my_cheeses.processed_trans_list, new_trans0, miner1)
         new_mined_json = cheese.cheese_mining(my_cheeses.stack, trans_col_list)
         my_cheeses.stack.append(new_mined_json)
 
-        new_trans1 = cheese.new_trans('Member 2', 'Member 3', 150)
-        miner2 = 'Miner 8'
-
-        trans_col_list = cheese.collect_trans(my_cheeses.processed_trans_list, new_trans1, miner2, reward_amount)
-
+        new_trans1 = cheese.new_trans('Satoshi team', 'UJM', 200)
+        miner2 = 'Anh'
+        trans_col_list = cheese.collect_trans(my_cheeses.processed_trans_list, new_trans1, miner2)
         new_mined_json1 = cheese.cheese_mining(my_cheeses.stack, trans_col_list)
         my_cheeses.stack.append(new_mined_json1)
 
-        # cheese.store_cheese_stack(my_cheese_stack, 'cheese_stack.json')
-        # print(cheese.load_cheese_stack('cheese_stack.json'))
         print(my_cheeses.stack)
 
     t = threading.Thread(target=handle)
@@ -120,12 +114,17 @@ def MemberToMemberServer(address, port, window):
                 window.chat.append(json.dumps(new_cheese))
             if data[0:1] == b'\x05':
                 window.chat.append("received request for CS from " + str(a[0]) + ':' + str(a[1]))
-                if data[1:].decode('utf-8') == "REQ_CS_LENGTH":
+                if data[1:2] == b'\x01':
                     cheese_stack_length = str(my_cheeses.stack[-1]["index"])
                     c.send(b'\x05' + b'\x01' + bytes(cheese_stack_length, 'utf-8'))
-                elif data[1:].decode('utf-8') == "REQ_CS":
-                    cheese_stack_string = json.dumps(my_cheeses.stack)
-                    c.send(b'\x05' + b'\x02' + bytes(cheese_stack_string, 'utf-8'))
+                elif data[1:2] == b'\x02':
+                    index = int(data[2:].decode('utf-8'))
+                    cheeses_to_send = []
+                    while index <= my_cheeses.stack[-1]["index"]:
+                        cheeses_to_send.append(my_cheeses.stack[index])
+                        index += 1
+                    cheeses_string = json.dumps(cheeses_to_send)
+                    c.send(b'\x05' + b'\x02' + bytes(cheeses_string, 'utf-8'))
             # for connection in self.connections:
             #     connection.send(data)
             if not data:
@@ -162,15 +161,17 @@ def MemberToMemberClient(addr, port, window):
                 if data[1:2] == b'\x01':  # receive index
                     # print("index received: ", data[2:].decode('utf-8'))
                     # print("current index: ", my_cheeses.stack[-1]["index"])
-                    if (int(data[2:].decode('utf-8')) > int(my_cheeses.stack[-1]["index"])):
-                        req = "REQ_CS"
-                        sock.send(b'\x05' + bytes(req, 'utf-8'))
-                        window.chat.append(str(data[2:].decode('utf-8') + "from" + str(address) + ":" + str(port)))
+                    if (int(data[2:].decode('utf-8')) > my_cheeses.stack[-1]["index"]):
+                        next_index = my_cheeses.stack[-1]["index"] + 1
+                        sock.send(b'\x05' + b'\x02' + bytes(str(next_index), 'utf-8'))
+                        window.chat.append("need to update from " + str(address) + ":" + str(port))
                     else:
-                        window.chat.append("don't need to update!")
+                        window.chat.append("don't need to update from " + str(address) + ":" + str(port))
                 if data[1:2] == b'\x02':  # receive cheese stack
                     # need to check if the CS is valid?
-                    my_cheeses.stack = json.loads(data[2:])
+                    cheeses_received = json.loads(data[2:])
+                    for ch in cheeses_received:
+                        my_cheeses.stack.append(ch)
                     window.chat.append("my new CS: " + json.dumps(my_cheeses.stack))
 
                 pass
@@ -244,7 +245,7 @@ class Window(QDialog):
         elif self.desToSend.text() == "AllClients":
             req = "REQ_CS_LENGTH"
             for s in socketToMembers:
-                s.send(b'\x05' + bytes(req, 'utf-8'))
+                s.send(b'\x05' + b'\x01')
         window.chat.append("sent a query for Cheese Stack")
 
 
