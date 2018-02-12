@@ -2,11 +2,12 @@ import hashlib
 import json
 import datetime
 import io
+import random
 import time
 from ecdsa import VerifyingKey, SigningKey, SECP256k1, BadSignatureError
 
 # Ref: https://medium.com/crypto-currently/lets-build-the-tiniest-blockchain-e70965a248b
-# Ref: https://www.dlitz.net/software/pycrypto/doc/#introduction
+# Ref: https://pypi.python.org/pypi/ecdsa
 '''
 Author: DOAN Tu-My
 Def Lists:
@@ -62,7 +63,7 @@ def proof_of_work(index, time_stamp, transactions, parent_smell):
     while hash_zero is False:
         nonce += 1
         smell = hash_smell(index, time_stamp, transactions, nonce, parent_smell)
-        if smell.startswith('0'):
+        if smell.startswith('000'):
             hash_zero = True
     return nonce
 
@@ -70,20 +71,32 @@ def proof_of_work(index, time_stamp, transactions, parent_smell):
 # When miner receives a transaction, his name and reward will be added into the transaction
 # If they can mine the block, this reward will be his money as part of the transactions collection
 
-
-def collect_trans(trans_list, trans_details, miner, reward=1):
-    trans_details['miner'] = miner
-    trans_details['reward'] = reward
-    # Add the transaction details into current transaction list
-    trans_list.append(trans_details)
-    return trans_list
+def collect_trans(trans_lst, trans_details, miner, reward=1):
+    # Check signature of the transaction
+    mess = str(trans_details['to'])+ str(trans_details['amount'])
+    valid = verifying_trans(mess.encode('utf-8'), trans_details['signature'], trans_details['from'])
+    # If signature is valid, add transaction into transaction list for later mining
+    if valid:
+        trans_details['miner'] = miner
+        trans_details['reward'] = reward
+        # Add the transaction details into current transaction list
+        trans_lst.append(trans_details)
+    return trans_lst
 
 
 # New transaction details to the others in json format
+# To create new transaction, sender must know public key of receiver
+# Receivers' public keys can be asked based on tracker client addresses
+# Private key and public key of sender will be retrieved directly from local drive
+# New keys will be generated, returned and saved locally if the files are not found
 
-
-def new_trans(sender, receiver, amount):
-    trans_details = {'from': sender, 'to': receiver, 'amount': amount}
+def new_trans(receiver, amount):
+    keys = key_load()
+    private_key = keys[0]
+    sender = keys[1]  # public key
+    mess = receiver + str(amount)
+    signature = signing_trans(mess.encode('utf-8'), private_key)
+    trans_details = {'from': sender, 'to': receiver, 'amount': amount, 'signature': signature}
     return trans_details
 
 
@@ -92,7 +105,6 @@ def new_trans(sender, receiver, amount):
 # member will collect all of them and append into this list
 # and add their identity into this list for reward if they successfully mined it.
 # Mining will be for the whole list with other information
-
 
 def cheese_mining(cheese_stack, transactions):
     # Convert cheese_stack into dict object
@@ -112,7 +124,7 @@ def cheese_mining(cheese_stack, transactions):
     i = 0
     while i <= len(transactions) - 1:
         cheese['transactions'].append({'from': transactions[i]['from'], 'to': transactions[i]['to'],
-                                       'amount': transactions[i]['amount'],
+                                       'amount': transactions[i]['amount'], 'signature': transactions[i]['signature'],
                                         'miner': transactions[i]['miner'], 'reward': transactions[i]['reward']})
         i +=1
 
@@ -122,8 +134,8 @@ def cheese_mining(cheese_stack, transactions):
 
     return cheese
 
-# Update current cheese stack list with whole new cheese stack
 
+# Update current cheese stack list with whole new cheese stack
 
 def update_cheese_stack(received_cheese_stack, file_name):
     stack_length = len(received_cheese_stack)
@@ -138,7 +150,6 @@ def update_cheese_stack(received_cheese_stack, file_name):
 
 # Add new cheese into cheese_stack when miner sends new mined cheese
 # cheese_stack can be loaded from local drive
-
 
 def add_mined_cheese(local_cheese_stack, cheese, file_name):
     # Check received latest index with our index
@@ -215,22 +226,28 @@ def validate_cheese_stack(received_cheese_stack_list):
 
 
 # Auto create trans after 10secs
-# Transactions list contains dict objects of random transactions
-def auto_trans(delay, transactions_list):
-    length = len(transactions_list)
+# Transactions will be created automatically based on the number of transaction provided until it is 0
+# Sender remains the same, receiver will be randomly selected among the list of receiver (public keys list)
+
+def auto_trans(delay, public_key_list, number_of_transaction):
+    #lst_test = [] # for testing only
+    length_key_list = len(public_key_list)
     i = 0
-    while i <= length - 1:
-        new_tran = new_trans(transactions_list[i]['from'], transactions_list[i]['to'], transactions_list[i]['amount'])
-        print(new_tran)
+    while i <= number_of_transaction - 1:
+        random_amount = random.randint(1, 10)
+        random_receiver = random.randint(0,length_key_list - 1)
+        new_tran = new_trans(public_key_list[random_receiver], random_amount)
+        #lst_test.append(new_tran) # for testing only
         time.sleep(delay)
         i +=1
+    #return lst_test  # for testing only
+
 
 # Create public & private key random
+
 def key_generator():
-    # Create a hash for private key
-    hash_priv = hashlib.sha256(str('').encode('utf-8')).digest()
     # Create Private key
-    signing_key = SigningKey.from_string(hash_priv, curve=SECP256k1)
+    signing_key = sk = SigningKey.generate(curve=SECP256k1)
     private_key_string = signing_key.to_string().hex()
     # Create public key
     verifying_key = signing_key.get_verifying_key()
@@ -254,9 +271,13 @@ def verifying_trans(message, signature, public_key_string):
         print('BadSignatureError')
         return False
 
+
 # Load keys from file if there exists
 # If not, new keys will be generated and saved to hard drive
-def key_load(private_key_file, public_key_file):
+
+def key_load():
+    private_key_file = 'sk.key'
+    public_key_file = 'vk.key'
     try:
         private_key = open(private_key_file).read()
         public_key = open(public_key_file).read()
@@ -267,6 +288,7 @@ def key_load(private_key_file, public_key_file):
         open(public_key_file, "w").write(keys[1])
         print('New keys created.')
         return keys
+
 
 '''
 str_message = 'message'
