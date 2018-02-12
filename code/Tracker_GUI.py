@@ -37,32 +37,33 @@ def Tracker(window):
 
     def handler(c, a, window):
         while True:
-            data = c.recv(4096)
-            print(data)
-            window.chat.append(data[1:].decode("utf-8"))
-            if (data[0:1] == b'\x01'):
-                server_member_port = str(data[1:], 'utf-8')
+            header = c.recv(1)
+
+            if (header == b'\x01'):
+                size = int.from_bytes(c.recv(2), byteorder='big')
+                data = c.recv(size)
+                server_member_port = str(data, 'utf-8')
                 server_peers.append(str(a[0]) + ':' + server_member_port)
-            elif(data[0:1] == b'\x02'):
-                if (str(data[1:], 'utf-8') == "REQ_MEM_LIST"):
-                    # c.send(bytes(str(self.peers), "utf-8"))
-                    print("received a request about member list")
-                    peers_to_send = []
-                    index = []
-                    for peer in client_peers:
-                        p = peer.split(":")
-                        if p[0] != str(a[0]) or p[1] != str(a[1]):
-                            index.append(client_peers.index(peer))
-                    # print("peer to send", peers_to_send)
-                    for i in index:
-                        peers_to_send.append(server_peers[i])
-                    data_string = json.dumps(peers_to_send)
-                    c.send(b'\x02' + bytes(data_string, "utf-8"))
-            elif (data[0:1] == b'\x03'):
+            elif(header == b'\x02'):
+                print("received a request about member list")
+                peers_to_send = []
+                index = []
+                for peer in client_peers:
+                    p = peer.split(":")
+                    if p[0] != str(a[0]) or p[1] != str(a[1]):
+                        index.append(client_peers.index(peer))
+                # print("peer to send", peers_to_send)
+                for i in index:
+                    peers_to_send.append(server_peers[i])
+                data_string = json.dumps(peers_to_send)
+                encode_data = bytes(data_string, "utf-8")
+                size = len(encode_data).to_bytes(2, byteorder='big')
+                c.send(b'\x02' + size + encode_data)
+            elif (header == b'\x03'):
                 pass
             # for connection in self.connections:
             #     connection.send(data)
-            if not data:
+            if not header:
                 print(str(a[0]) + ':' + str(a[1]), "disconnected")
                 connections.remove(c)
                 client_peers.remove(str(a[0]) + ':' + str(a[1]))
@@ -71,7 +72,10 @@ def Tracker(window):
 
     def reply_to_member(c):
         msg = "Connect to Tracker successfully!"
-        c.send(b'\x01' + bytes(msg, "utf-8"))
+        encode_msg = bytes(msg, "utf-8")
+        len_msg = len(encode_msg)
+        size = len_msg.to_bytes(2, byteorder='big')
+        c.send(b'\x01' + size + encode_msg )
 
     t = threading.Thread(target=handle, args=(window,))
     return t

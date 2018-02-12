@@ -27,23 +27,17 @@ Def Lists:
 '''
 my_cheese_stack = []
 trans_list = []
-reward = 1
+
 
 
 def blue_cheese():
-    index = 0
+
     cheese = {}
-    time_stamp = '2018-02-08 21:02:02.760373'
-    parent_smell = ''
-    transactions = []
-    nonce = proof_of_work(index, time_stamp, transactions, parent_smell)
-    smell = hash_smell(index, time_stamp, transactions, nonce, parent_smell)
-    cheese['index'] = index
-    cheese['timestamp'] = str(time_stamp)
+    cheese['index'] = 0
+    cheese['timestamp'] = str('2018-02-08 21:02:02.760373')
     cheese['transactions'] = []
-    cheese['previous_smell'] = parent_smell
-    cheese['nonce'] = nonce
-    cheese['smell'] = smell
+    cheese['previous_smell'] = ''
+    cheese['nonce'], cheese['smell'] = proof_of_work(cheese['index'], cheese['timestamp'], cheese['transactions'], cheese['previous_smell'])
     return cheese
 
 
@@ -58,13 +52,14 @@ def hash_smell(index, time_stamp, transactions, nonce, parent_smell):
 def proof_of_work(index, time_stamp, transactions, parent_smell):
     nonce = 0
     hash_zero = False
-
+    smell = None
     while hash_zero is False:
         nonce += 1
         smell = hash_smell(index, time_stamp, transactions, nonce, parent_smell)
         if smell.startswith('0'):
             hash_zero = True
-    return nonce
+
+    return nonce, smell
 
 
 # When miner receives a transaction, his name and reward will be added into the transaction
@@ -101,20 +96,22 @@ def cheese_mining(cheese_stack, transactions):
     parent_smell = cheese_stack[-1]['smell']
 
     # Implement Proof of Work to find a nonce that generate hash starts with 0
-    nonce = proof_of_work(index,time_stamp,transactions,parent_smell)
-    smell = hash_smell(index,time_stamp,transactions,nonce,parent_smell)
+    nonce, smell = proof_of_work(index,time_stamp,transactions,parent_smell)
 
     # Return newly mined cheese block
     cheese = {}
     cheese['index'] = index
     cheese['timestamp'] = str(time_stamp)
     cheese['transactions'] = []
-    i = 0
-    while i <= len(transactions) - 1:
-        cheese['transactions'].append({'from': transactions[i]['from'], 'to': transactions[i]['to'],
-                                       'amount': transactions[i]['amount'],
-                                        'miner': transactions[i]['miner'], 'reward': transactions[i]['reward']})
-        i +=1
+    # i = 0
+    # while i <= len(transactions) - 1:
+    #     cheese['transactions'].append({'from': transactions[i]['from'], 'to': transactions[i]['to'],
+    #                                    'amount': transactions[i]['amount'],
+    #                                     'miner': transactions[i]['miner'], 'reward': transactions[i]['reward']})
+    #     i +=1
+
+    for trans in transactions:
+        cheese['transactions'].append(trans)
 
     cheese['previous_smell'] = parent_smell
     cheese['nonce'] = nonce
@@ -125,33 +122,35 @@ def cheese_mining(cheese_stack, transactions):
 # Update current cheese stack list with whole new cheese stack
 
 
-def update_cheese_stack(received_cheese_stack, file_name):
-    stack_length = len(received_cheese_stack)
-    cheese_stack_list = load_cheese_stack(file_name)
-    local_stack_length = len(cheese_stack_list)
-    if stack_length > local_stack_length:
-        return False
-    else:
-        store_cheese_stack(received_cheese_stack, file_name)
+def update_cheese_stack(my_cheese_stack, received_index):
+    my_stack_length = my_cheese_stack[-1]["index"]
+    if received_index > my_stack_length:
         return True
+    else:
+        return False
 
 
 # Add new cheese into cheese_stack when miner sends new mined cheese
 # cheese_stack can be loaded from local drive
 
-
-def add_mined_cheese(local_cheese_stack, cheese, file_name):
-    # Check received latest index with our index
-    local_stack_list = load_cheese_stack(file_name)
-    valid = validate_cheese(local_stack_list[-1], cheese)
-    if valid:
-        # Add new cheese into local stack
-        local_stack_list.append(cheese)
-        # Save local file
-        store_cheese_stack(local_stack_list, file_name)
+def add_mined_cheese(my_cheese_stack, cheese, file_path):
+    if validate_cheese(my_cheese_stack[-1], cheese):
+        my_cheese_stack.append(cheese)
+        store_cheese_stack(my_cheese_stack, file_path)
         return True
     else:
         return False
+
+def add_cheeses(my_cheese_stack, cheeses, file_path):
+    changed = False
+    for ch in cheeses:
+        if validate_cheese(my_cheese_stack[-1], ch):
+            my_cheese_stack.append(ch)
+            changed = True
+        else:
+            break
+    if changed:
+        store_cheese_stack(my_cheese_stack, file_path)
 
 
 def store_cheese_stack(cheese_stack, file_name):
@@ -160,7 +159,7 @@ def store_cheese_stack(cheese_stack, file_name):
             f.write(json.dumps(cheese_stack, ensure_ascii=False))
     except IOError:
         print("File %s is not found!" % file_name)
-    raise SystemExit
+    # raise SystemExit
 
 
 def load_cheese_stack(file_name):
@@ -170,7 +169,7 @@ def load_cheese_stack(file_name):
             return cheese_stack_list
     except IOError:
         print("File %s is not found!" % file_name)
-    raise SystemExit
+    # raise SystemExit
 
 
 def validate_cheese(previous_cheese, next_cheese):
@@ -192,10 +191,12 @@ def validate_cheese(previous_cheese, next_cheese):
         print(new_index)
         return False
     elif smell != new_parent_smell:
+        print("error1")
         print(smell)
         print(new_parent_smell)
         return False
     elif new_smell != new_hash_smell:
+        print("error2")
         print(new_smell)
         print(new_hash_smell)
         return False
@@ -225,12 +226,12 @@ def auto_trans(delay, transactions_list):
         time.sleep(delay)
         i +=1
 
+
 # Create public & private key random
+
 def key_generator():
-    # Create a hash for private key
-    hash_priv = hashlib.sha256(str('').encode('utf-8')).digest()
     # Create Private key
-    signing_key = SigningKey.from_string(hash_priv, curve=SECP256k1)
+    signing_key = SigningKey.generate(curve=SECP256k1)
     private_key_string = signing_key.to_string().hex()
     # Create public key
     verifying_key = signing_key.get_verifying_key()
@@ -254,9 +255,13 @@ def verifying_trans(message, signature, public_key_string):
         print('BadSignatureError')
         return False
 
+
 # Load keys from file if there exists
 # If not, new keys will be generated and saved to hard drive
-def key_load(private_key_file, public_key_file):
+
+def key_load():
+    private_key_file = 'sk.key'
+    public_key_file = 'vk.key'
     try:
         private_key = open(private_key_file).read()
         public_key = open(public_key_file).read()
@@ -267,7 +272,21 @@ def key_load(private_key_file, public_key_file):
         open(public_key_file, "w").write(keys[1])
         print('New keys created.')
         return keys
-
+#
+# my_blue_cheese = cheese.blue_cheese()
+# my_cheeses.stack.append(my_blue_cheese)
+#
+# new_trans0 = cheese.new_trans('Satoshi team', 'UJM', 300)
+# miner1 = 'Anh'
+# trans_col_list = cheese.collect_trans(my_cheeses.processed_trans_list, new_trans0, miner1)
+# new_mined_json = cheese.cheese_mining(my_cheeses.stack, trans_col_list)
+# my_cheeses.stack.append(new_mined_json)
+#
+# new_trans1 = cheese.new_trans('Satoshi team', 'UJM', 200)
+# miner2 = 'Anh'
+# trans_col_list = cheese.collect_trans(my_cheeses.processed_trans_list, new_trans1, miner2)
+# new_mined_json1 = cheese.cheese_mining(my_cheeses.stack, trans_col_list)
+# my_cheeses.stack.append(new_mined_json1)
 '''
 str_message = 'message'
 message = str(str_message).encode('utf-8')
