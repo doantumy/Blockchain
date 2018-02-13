@@ -247,7 +247,7 @@ def auto_trans(delay, public_key_list, number_of_transaction):
 
 def key_generator():
     # Create Private key
-    signing_key = sk = SigningKey.generate(curve=SECP256k1)
+    signing_key = SigningKey.generate(curve=SECP256k1)
     private_key_string = signing_key.to_string().hex()
     # Create public key
     verifying_key = signing_key.get_verifying_key()
