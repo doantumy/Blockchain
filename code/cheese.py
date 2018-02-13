@@ -161,9 +161,6 @@ def store_cheese_stack(cheese_stack, file_name):
         print("File %s is not found!" % file_name)
     # raise SystemExit
 
-
-
-
 def load_cheese_stack(file_name):
     try:
         with open(file_name) as json_data:

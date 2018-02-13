@@ -60,7 +60,10 @@ def Tracker(window):
                 size = len(encode_data).to_bytes(2, byteorder='big')
                 c.send(b'\x02' + size + encode_data)
             elif (header == b'\x03'):
-                pass
+                for peer in client_peers:
+                    p = peer.split(":")
+                    if p[0] == str(a[0]) and p[1] == str(a[1]):
+                        client_peers.remove(peer)
             # for connection in self.connections:
             #     connection.send(data)
             if not header:
