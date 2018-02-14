@@ -12,6 +12,8 @@ from socketserver import ThreadingMixIn
 from PyQt5.QtCore import  pyqtSlot
 from PyQt5.uic import  loadUi
 
+tracker_port = 9999
+tracker_address = '172.20.10.14'
 
 def Tracker(window):
     connections = []
@@ -20,7 +22,7 @@ def Tracker(window):
     def handle(window):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind(('0.0.0.0', 9999))
+        sock.bind((tracker_address, tracker_port))
         sock.listen(1)
         print("Tracker running ...")
         while True:
