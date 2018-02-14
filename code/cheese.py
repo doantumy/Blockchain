@@ -94,28 +94,29 @@ def cheese_mining(cheese_stack, transactions, file_path, event):
     # Implement Proof of Work to find a nonce that generate hash starts with 0
     if not event.isSet():
         nonce, smell = proof_of_work(index, time_stamp, transactions, parent_smell, event)
+        if nonce == -1 and smell == -1:
+            return -1
 
-    if nonce == -1 and smell == -1:
-        return -1
+        # Return newly mined cheese block
+        cheese = {}
+        cheese['index'] = index
+        cheese['timestamp'] = str(time_stamp)
+        cheese['transactions'] = []
+        for trans in transactions:
+            cheese['transactions'].append(trans)
 
-    # Return newly mined cheese block
-    cheese = {}
-    cheese['index'] = index
-    cheese['timestamp'] = str(time_stamp)
-    cheese['transactions'] = []
-    for trans in transactions:
-        cheese['transactions'].append(trans)
-
-    cheese['previous_smell'] = parent_smell
-    cheese['nonce'] = nonce
-    cheese['smell'] = smell
-    if not event.isSet():
-        if validate_cheese(cheese_stack[-1], cheese):
-            cheese_stack.append(cheese)
-            store_cheese_stack(cheese_stack, file_path)
-            return True
+        cheese['previous_smell'] = parent_smell
+        cheese['nonce'] = nonce
+        cheese['smell'] = smell
+        if not event.isSet():
+            if validate_cheese(cheese_stack[-1], cheese):
+                cheese_stack.append(cheese)
+                store_cheese_stack(cheese_stack, file_path)
+                return True
+            else:
+                return  False
         else:
-            return  False
+            return -1
     else:
         return -1
     # return cheese

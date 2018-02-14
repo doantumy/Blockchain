@@ -19,7 +19,7 @@ tracker_address = '172.20.10.14'
 member_address = '172.20.10.2'
 member_name = "Member01"
 memberList = []
-my_cheeses_path = "E:/MLDM/Computer Networks/2018-net-f/data/" + member_name + ".json"
+my_cheeses_path = "../data/" + member_name + ".json"
 
 
 
@@ -43,7 +43,7 @@ def CheeseMining(window):
                 size_data = len(bytes_new_mined_block).to_bytes(2, byteorder='big')
                 for s in socketToMembers:
                     s.send(b'\x07' + size_data + bytes_new_mined_block)
-                print("sent new mined cheese!")
+                print("sent new mined cheese!", " size: ", len(bytes_new_mined_block), " data: ", bytes_new_mined_block)
                 window.chat.append("sent new mined cheese!" )
             elif val is False:
                 print("it's too late to add mined block to chain!")
