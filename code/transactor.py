@@ -15,7 +15,6 @@ socketToTracker = []
 socketToMembers = []
 tracker_port = 9999
 tracker_address = '172.20.10.14'
-member_address = '172.20.10.2'
 name = "Transactor"
 memberList = []
 
