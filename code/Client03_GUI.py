@@ -88,7 +88,8 @@ def MemberToTracker(addr, port, window):
                 size = int.from_bytes(sock.recv(2), byteorder='big')
                 data = sock.recv(size)
                 for el in json.loads(data):
-                    memberList.append(el)
+                    if el not in memberList:
+                        memberList.append(el)
                 print(memberList)
                 window.chat.append("Members List: " + str(memberList))
 
