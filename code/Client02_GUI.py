@@ -15,8 +15,8 @@ socketToTracker = []
 socketToMembers = []
 tracker_port = 9999
 server_port = 10002
-tracker_address = '172.20.10.14'
-member_address = '172.20.10.2'
+tracker_address = '172.18.250.18'
+member_address = '172.18.250.19'
 member_name = "Member02"
 memberList = []
 my_cheeses_path = "../data/" + member_name + ".json"
@@ -42,7 +42,7 @@ def CheeseMining(window):
                 bytes_new_mined_block = bytes(new_mined_block, 'utf-8')
                 size_data = len(bytes_new_mined_block).to_bytes(2, byteorder='big')
                 for s in socketToMembers:
-                    s.send(b'\x07' + size_data + bytes_new_mined_block)
+                    s.sendall(b'\x07' + size_data + bytes_new_mined_block)
                 print("sent new mined cheese!", " size: ", len(bytes_new_mined_block), " data: ", bytes_new_mined_block)
                 window.chat.append("sent new mined cheese!" )
             elif val is False:
@@ -64,7 +64,7 @@ def loadCheeses():
 def MemberToTracker(addr, port, window):
     def sendMsg(sock):
         while True:
-            sock.send(bytes(input(""), 'utf-8'))
+            sock.sendall(bytes(input(""), 'utf-8'))
 
     def handle(address, port, window):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -96,7 +96,7 @@ def MemberToTracker(addr, port, window):
     def send_server_port(sock):
         encode_msg = bytes(str(server_port), 'utf-8')
         size = len(encode_msg).to_bytes(2, byteorder='big')
-        sock.send(b'\x01' + size + encode_msg)
+        sock.sendall(b'\x01' + size + encode_msg)
 
     t = threading.Thread(target=handle, args=(addr, port, window,))
     return t
@@ -131,8 +131,8 @@ def MemberToMemberServer(address, port, window):
             if (header == b'\x07'):
                 size = c.recv(2)
                 buf = int.from_bytes(size, byteorder='big')
-                data = c.recv(buf)
-                new_cheese = json.loads(data)
+                ch = c.recv(buf)
+                new_cheese = json.loads(ch)
                 if cheese.add_mined_cheese(my_cheeses.stack, new_cheese, my_cheeses_path):
                     my_cheeses.flag.set()
                     print("added new mined cheese: ", new_cheese)
@@ -146,7 +146,7 @@ def MemberToMemberServer(address, port, window):
                 header2 = c.recv(1)
                 if header2 == b'\x01':
                     cheese_stack_length = my_cheeses.stack[-1]["index"].to_bytes(2, byteorder='big')
-                    c.send(b'\x05' + b'\x01' + cheese_stack_length)
+                    c.sendall(b'\x05' + b'\x01' + cheese_stack_length)
                     print("sent index!")
                 elif header2 == b'\x02':
                     cheese_stack_length = c.recv(2)
@@ -159,7 +159,7 @@ def MemberToMemberServer(address, port, window):
                     bytes_cheese_string = bytes(cheeses_string, 'utf-8')
                     size_data = len(bytes_cheese_string)
                     size_data_bytes = size_data.to_bytes(2, byteorder='big')
-                    c.send(b'\x05' + b'\x02' + size_data_bytes + bytes_cheese_string)
+                    c.sendall(b'\x05' + b'\x02' + size_data_bytes + bytes_cheese_string)
                     print("sent cheeses!")
 
             if header == b'\x08':
@@ -183,7 +183,7 @@ def MemberToMemberServer(address, port, window):
         encode_msg = bytes(msg, "utf-8")
         size = len(encode_msg)
         size_bytes = size.to_bytes(2, byteorder='big')
-        c.send(b'\x04' + size_bytes + encode_msg)
+        c.sendall(b'\x04' + size_bytes + encode_msg)
 
     t = threading.Thread(target=handle, args=(address, port, window))
     return t
@@ -215,7 +215,7 @@ def MemberToMemberClient(addr, port, window):
                     if cheese.update_cheese_stack(my_cheeses.stack, length_int):
                         next_index = my_cheeses.stack[-1]["index"] + 1
                         next_index_bytes = next_index.to_bytes(2, byteorder='big')
-                        sock.send(b'\x05' + b'\x02' + next_index_bytes)
+                        sock.sendall(b'\x05' + b'\x02' + next_index_bytes)
                         window.chat.append("need to update from " + str(address) + ":" + str(port))
                     else:
                         window.chat.append("don't need to update from " + str(address) + ":" + str(port))
@@ -255,7 +255,7 @@ class Window(QDialog):
     @pyqtSlot()
     def reqMemList(self):
         # req = "REQ_MEM_LIST"
-        socketToTracker[0].send(b'\x02')
+        socketToTracker[0].sendall(b'\x02')
 
     @pyqtSlot(str)
     def onActivated(self, text):
@@ -299,7 +299,7 @@ class Window(QDialog):
             window.chat.append("Select destination pls!")
         elif self.desToSend.text() == "AllClients":
             for s in socketToMembers:
-                s.send(b'\x05' + b'\x01')
+                s.sendall(b'\x05' + b'\x01')
         window.chat.append("sent a query for Cheese Stack")
 
 
