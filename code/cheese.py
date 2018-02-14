@@ -5,7 +5,7 @@ import io
 import time
 import random
 from ecdsa import VerifyingKey, SigningKey, SECP256k1, BadSignatureError
-
+import threading
 # Ref: https://medium.com/crypto-currently/lets-build-the-tiniest-blockchain-e70965a248b
 # Ref: https://www.dlitz.net/software/pycrypto/doc/#introduction
 '''
@@ -48,16 +48,18 @@ def hash_smell(index, time_stamp, transactions, nonce, parent_smell):
                         str(parent_smell).encode('utf-8')).hexdigest()
 
 
-def proof_of_work(index, time_stamp, transactions, parent_smell):
+def proof_of_work(index, time_stamp, transactions, parent_smell, event):
     nonce = 0
     hash_zero = False
+    while not event.isSet():
+        if hash_zero is False:
+            nonce += 1
+            smell = hash_smell(index, time_stamp, transactions, nonce, parent_smell)
+            if smell.startswith('0000'):
+                hash_zero = True
+                return nonce, smell
+    return -1, -1
 
-    while hash_zero is False:
-        nonce += 1
-        smell = hash_smell(index, time_stamp, transactions, nonce, parent_smell)
-        if smell.startswith('0000'):
-            hash_zero = True
-    return nonce, smell
 
 
 
@@ -83,14 +85,18 @@ def collect_trans(trans_lst, trans_details, miner, reward=1):
 # and add their identity into this list for reward if they successfully mined it.
 # Mining will be for the whole list with other information
 
-def cheese_mining(cheese_stack, transactions, file_path):
+def cheese_mining(cheese_stack, transactions, file_path, event):
     # Convert cheese_stack into dict object
     index = cheese_stack[-1]['index'] + 1
     time_stamp = datetime.datetime.now()
     parent_smell = cheese_stack[-1]['smell']
 
     # Implement Proof of Work to find a nonce that generate hash starts with 0
-    nonce, smell = proof_of_work(index, time_stamp, transactions, parent_smell)
+    if not event.isSet():
+        nonce, smell = proof_of_work(index, time_stamp, transactions, parent_smell, event)
+
+    if nonce == -1 and smell == -1:
+        return -1
 
     # Return newly mined cheese block
     cheese = {}
@@ -103,12 +109,15 @@ def cheese_mining(cheese_stack, transactions, file_path):
     cheese['previous_smell'] = parent_smell
     cheese['nonce'] = nonce
     cheese['smell'] = smell
-    if validate_cheese(cheese_stack[-1], cheese):
-        cheese_stack.append(cheese)
-        store_cheese_stack(cheese_stack, file_path)
-        return True
+    if not event.isSet():
+        if validate_cheese(cheese_stack[-1], cheese):
+            cheese_stack.append(cheese)
+            store_cheese_stack(cheese_stack, file_path)
+            return True
+        else:
+            return  False
     else:
-        return  False
+        return -1
     # return cheese
 
 # Update current cheese stack list with whole new cheese stack
@@ -262,21 +271,8 @@ def key_load():
         print('New keys created.')
         return keys
 
-#
-# my_blue_cheese = cheese.blue_cheese()
-# my_cheeses.stack.append(my_blue_cheese)
-#
-# new_trans0 = cheese.new_trans('Satoshi team', 'UJM', 300)
-# miner1 = 'Anh'
-# trans_col_list = cheese.collect_trans(my_cheeses.processed_trans_list, new_trans0, miner1)
-# new_mined_json = cheese.cheese_mining(my_cheeses.stack, trans_col_list)
-# my_cheeses.stack.append(new_mined_json)
-#
-# new_trans1 = cheese.new_trans('Satoshi team', 'UJM', 200)
-# miner2 = 'Anh'
-# trans_col_list = cheese.collect_trans(my_cheeses.processed_trans_list, new_trans1, miner2)
-# new_mined_json1 = cheese.cheese_mining(my_cheeses.stack, trans_col_list)
-# my_cheeses.stack.append(new_mined_json1)
+
+
 '''
 str_message = 'message'
 message = str(str_message).encode('utf-8')

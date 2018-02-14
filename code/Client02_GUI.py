@@ -26,7 +26,7 @@ class myCheeses:
     def __init__(self):
         self.stack = []
         self.received_trans_list = queue.Queue()
-
+        self.flag = threading.Event()
 
 
 def CheeseMining(window):
@@ -35,7 +35,8 @@ def CheeseMining(window):
         while True:
             while len(trans_to_mine) < 3:
                 cheese.collect_trans(trans_to_mine, my_cheeses.received_trans_list.get(), member_name)
-            if cheese.cheese_mining(my_cheeses.stack, trans_to_mine, my_cheeses_path):
+            val = cheese.cheese_mining(my_cheeses.stack, trans_to_mine, my_cheeses_path, my_cheeses.flag)
+            if val is True:
                 new_mined_block = json.dumps(my_cheeses.stack[-1])
                 bytes_new_mined_block = bytes(new_mined_block, 'utf-8')
                 size_data = len(bytes_new_mined_block).to_bytes(2, byteorder='big')
@@ -43,9 +44,12 @@ def CheeseMining(window):
                     s.send(b'\x07' + size_data + bytes_new_mined_block)
                 print("sent new mined cheese!")
                 window.chat.append("sent new mined cheese!" )
-            else:
-                print("it's too late for mining!")
+            elif val is False:
+                print("it's too late to add mined block to chain!")
+            elif val == -1:
+                print("cut down!")
             trans_to_mine = []
+            my_cheeses.flag.clear()
 
 
     t = threading.Thread(target=handle, args=(window,), daemon=True)
@@ -128,11 +132,13 @@ def MemberToMemberServer(address, port, window):
                 data = c.recv(buf)
                 new_cheese = json.loads(data)
                 if cheese.add_mined_cheese(my_cheeses.stack, new_cheese, my_cheeses_path):
-                    print("added new mined cheese: ", new_cheese )
+                    my_cheeses.flag.set()
+                    print("added new mined cheese: ", new_cheese)
                     window.chat.append("added new mined cheese! " )
                 else:
                     print("new mined cheese is not valid")
                     window.chat.append("new mined cheese is not valid")
+
             if header == b'\x05':
                 window.chat.append("received request for CS from " + str(a[0]) + ':' + str(a[1]))
                 header2 = c.recv(1)
@@ -153,6 +159,7 @@ def MemberToMemberServer(address, port, window):
                     size_data_bytes = size_data.to_bytes(2, byteorder='big')
                     c.send(b'\x05' + b'\x02' + size_data_bytes + bytes_cheese_string)
                     print("sent cheeses!")
+
             if header == b'\x08':
                 size = c.recv(2)
                 buf = int.from_bytes(size, byteorder='big')
