@@ -8,6 +8,8 @@ from PyQt5.QtWidgets import QScrollBar, QSplitter, QTableWidgetItem, QTableWidge
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.uic import loadUi
 import cheese
+import queue
+
 
 socketToTracker = []
 socketToMembers = []
@@ -16,49 +18,46 @@ server_port = 10002
 member_address = 'localhost'
 member_name = "Member02"
 memberList = []
+my_cheeses_path = "E:/MLDM/Computer Networks/2018-net-f/data/" + member_name + ".json"
+
 
 
 class myCheeses:
     def __init__(self):
         self.stack = []
-        self.processed_trans_list = []
+        self.received_trans_list = queue.Queue()
+        self.flag = threading.Event()
 
 
-def CheeseThread():
-    def handle():
-        my_blue_cheese = cheese.blue_cheese()
-        my_cheeses.stack.append(my_blue_cheese)
+def CheeseMining(window):
+    def handle(window):
+        trans_to_mine = []
+        while True:
+            while len(trans_to_mine) < 3:
+                cheese.collect_trans(trans_to_mine, my_cheeses.received_trans_list.get(), member_name)
+            val = cheese.cheese_mining(my_cheeses.stack, trans_to_mine, my_cheeses_path, my_cheeses.flag)
+            if val is True:
+                new_mined_block = json.dumps(my_cheeses.stack[-1])
+                bytes_new_mined_block = bytes(new_mined_block, 'utf-8')
+                size_data = len(bytes_new_mined_block).to_bytes(2, byteorder='big')
+                for s in socketToMembers:
+                    s.send(b'\x07' + size_data + bytes_new_mined_block)
+                print("sent new mined cheese!")
+                window.chat.append("sent new mined cheese!" )
+            elif val is False:
+                print("it's too late to add mined block to chain!")
+            elif val == -1:
+                print("cut down!")
+            trans_to_mine = []
+            my_cheeses.flag.clear()
 
-        new_trans0 = cheese.new_trans('Member 1', 'Mem 2', 300)
-        miner1 = member_name
-        reward_amount = cheese.reward
 
-        trans_col_list = cheese.collect_trans(my_cheeses.processed_trans_list, new_trans0, miner1, reward_amount)
-        new_mined_json = cheese.cheese_mining(my_cheeses.stack, trans_col_list)
-        my_cheeses.stack.append(new_mined_json)
-
-        new_trans1 = cheese.new_trans('Member 2', 'Member 3', 150)
-        miner2 = 'Miner 8'
-
-        trans_col_list = cheese.collect_trans(my_cheeses.processed_trans_list, new_trans1, miner2, reward_amount)
-
-        new_mined_json1 = cheese.cheese_mining(my_cheeses.stack, trans_col_list)
-        my_cheeses.stack.append(new_mined_json1)
-
-        new_trans2 = cheese.new_trans('Member 2', 'Member 3', 150)
-        miner2 = 'Miner 8'
-
-        trans_col_list = cheese.collect_trans(my_cheeses.processed_trans_list, new_trans2, miner2, reward_amount)
-
-        new_mined_json1 = cheese.cheese_mining(my_cheeses.stack, trans_col_list)
-        my_cheeses.stack.append(new_mined_json1)
-
-        # cheese.store_cheese_stack(my_cheese_stack, 'cheese_stack.json')
-        # print(cheese.load_cheese_stack('cheese_stack.json'))
-        print(my_cheeses.stack)
-
-    t = threading.Thread(target=handle)
+    t = threading.Thread(target=handle, args=(window,), daemon=True)
     return t
+
+def loadCheeses():
+    my_cheeses.stack = cheese.load_cheese_stack(my_cheeses_path)
+    print(my_cheeses.stack)
 
 
 def MemberToTracker(addr, port, window):
@@ -76,22 +75,26 @@ def MemberToTracker(addr, port, window):
         iThread.daemon = True
         iThread.start()
         while True:
-            data = sock.recv(4096)
+            header = sock.recv(1)
 
-            if not data:
+            if not header:
                 break
-            if data[0:1] == b'\x01':
-                print(str(data[1:], 'utf-8'))
-                window.chat.append(data[1:].decode("utf-8"))
-            if data[0:1] == b'\x02':
-                # print(str(data,'utf-8'))
-                for el in json.loads(data[1:]):
+            if header == b'\x01':
+                size = int.from_bytes(sock.recv(2), byteorder='big')
+                data = sock.recv(size)
+                window.chat.append(data.decode("utf-8"))
+            if header == b'\x02':
+                size = int.from_bytes(sock.recv(2), byteorder='big')
+                data = sock.recv(size)
+                for el in json.loads(data):
                     memberList.append(el)
                 print(memberList)
                 window.chat.append("Members List: " + str(memberList))
 
     def send_server_port(sock):
-        sock.send(b'\x01' + bytes(str(server_port), 'utf-8'))
+        encode_msg = bytes(str(server_port), 'utf-8')
+        size = len(encode_msg).to_bytes(2, byteorder='big')
+        sock.send(b'\x01' + size + encode_msg)
 
     t = threading.Thread(target=handle, args=(addr, port, window,))
     return t
@@ -121,22 +124,52 @@ def MemberToMemberServer(address, port, window):
 
     def handler(c, a, window):
         while True:
-            data = c.recv(1024)
+            header = c.recv(1)
             # window.chat.append(data.decode('utf-8'))
-            if (data[0:1] == b'\x07'):
-                new_cheese = json.loads(data[1:])
-                window.chat.append(json.dumps(new_cheese))
-            if data[0:1] == b'\x05':
+            if (header == b'\x07'):
+                size = c.recv(2)
+                buf = int.from_bytes(size, byteorder='big')
+                data = c.recv(buf)
+                new_cheese = json.loads(data)
+                if cheese.add_mined_cheese(my_cheeses.stack, new_cheese, my_cheeses_path):
+                    my_cheeses.flag.set()
+                    print("added new mined cheese: ", new_cheese)
+                    window.chat.append("added new mined cheese! " )
+                else:
+                    print("new mined cheese is not valid")
+                    window.chat.append("new mined cheese is not valid")
+
+            if header == b'\x05':
                 window.chat.append("received request for CS from " + str(a[0]) + ':' + str(a[1]))
-                if data[1:].decode('utf-8') == "REQ_CS_LENGTH":
-                    cheese_stack_length = str(my_cheeses.stack[-1]["index"])
-                    c.send(b'\x05' + b'\x01' + bytes(cheese_stack_length, 'utf-8'))
-                elif data[1:].decode('utf-8') == "REQ_CS":
-                    cheese_stack_string = json.dumps(my_cheeses.stack)
-                    c.send(b'\x05' + b'\x02' + bytes(cheese_stack_string, 'utf-8'))
-            # for connection in self.connections:
-            #     connection.send(data)
-            if not data:
+                header2 = c.recv(1)
+                if header2 == b'\x01':
+                    cheese_stack_length = my_cheeses.stack[-1]["index"].to_bytes(2, byteorder='big')
+                    c.send(b'\x05' + b'\x01' + cheese_stack_length)
+                    print("sent index!")
+                elif header2 == b'\x02':
+                    cheese_stack_length = c.recv(2)
+                    index = int.from_bytes(cheese_stack_length, byteorder='big')
+                    cheeses_to_send = []
+                    while index <= my_cheeses.stack[-1]["index"]:
+                        cheeses_to_send.append(my_cheeses.stack[index])
+                        index += 1
+                    cheeses_string = json.dumps(cheeses_to_send)
+                    bytes_cheese_string = bytes(cheeses_string, 'utf-8')
+                    size_data = len(bytes_cheese_string)
+                    size_data_bytes = size_data.to_bytes(2, byteorder='big')
+                    c.send(b'\x05' + b'\x02' + size_data_bytes + bytes_cheese_string)
+                    print("sent cheeses!")
+
+            if header == b'\x08':
+                size = c.recv(2)
+                buf = int.from_bytes(size, byteorder='big')
+                data = c.recv(buf)
+                transaction = json.loads(data)
+                print("received transaction: ", transaction)
+                my_cheeses.received_trans_list.put(transaction)
+                window.chat.append("received a new transaction")
+
+            if not header:
                 print(str(a[0]) + ':' + str(a[1]), "disconnected")
                 connections.remove(c)
                 peers.remove(a[0])
@@ -145,7 +178,10 @@ def MemberToMemberServer(address, port, window):
 
     def reply_to_member(c):
         msg = "Connect to " + member_name + " successfully!"
-        c.send(b'\x04' + bytes(msg, "utf-8"))
+        encode_msg = bytes(msg, "utf-8")
+        size = len(encode_msg)
+        size_bytes = size.to_bytes(2, byteorder='big')
+        c.send(b'\x04' + size_bytes + encode_msg)
 
     t = threading.Thread(target=handle, args=(address, port, window))
     return t
@@ -158,30 +194,37 @@ def MemberToMemberClient(addr, port, window):
         sock.connect((address, port))
         socketToMembers.append(sock)
         while True:
-            data = sock.recv(4096)
-            if not data:
+            header = sock.recv(1)
+            if not header:
                 break
 
-            if data[0:1] == b'\x04':
-                print(str(data[1:], 'utf-8'))
-                window.chat.append(str(data[1:], 'utf-8'))
+            if header == b'\x04':
+                size = sock.recv(2)
+                size_int = int.from_bytes(size, byteorder='big')
+                msg = sock.recv(size_int)
+                print(str(msg, 'utf-8'))
+                window.chat.append(str(msg, 'utf-8'))
 
-            if data[0:1] == b'\x05':  # receive Cheese stack information
-                if data[1:2] == b'\x01':  # receive index
-                    # print("index received: ", data[2:].decode('utf-8'))
-                    # print("current index: ", my_cheeses.stack[-1]["index"])
-                    if (int(data[2:].decode('utf-8')) > int(my_cheeses.stack[-1]["index"])):
-                        req = "REQ_CS"
-                        sock.send(b'\x05' + bytes(req, 'utf-8'))
-                        window.chat.append(str(data[2:].decode('utf-8') + "from" + str(address) + ":" + str(port)))
+            if header == b'\x05':  # receive Cheese stack information
+                header2 = sock.recv(1)
+                if header2 == b'\x01':  # receive index
+                    length = sock.recv(2)
+                    length_int = int.from_bytes(length, byteorder='big')
+                    if cheese.update_cheese_stack(my_cheeses.stack, length_int):
+                        next_index = my_cheeses.stack[-1]["index"] + 1
+                        next_index_bytes = next_index.to_bytes(2, byteorder='big')
+                        sock.send(b'\x05' + b'\x02' + next_index_bytes)
+                        window.chat.append("need to update from " + str(address) + ":" + str(port))
                     else:
-                        window.chat.append("don't need to update!")
-                if data[1:2] == b'\x02':  # receive cheese stack
-                    # need to check if the CS is valid?
-                    my_cheeses.stack = json.loads(data[2:])
+                        window.chat.append("don't need to update from " + str(address) + ":" + str(port))
+                if header2 == b'\x02':  # receive cheese stack
+                    size = sock.recv(2)
+                    size_data = int.from_bytes(size, byteorder='big')
+                    data = sock.recv(size_data)
+                    cheeses_received = json.loads(data)
+                    print(cheeses_received)
+                    cheese.add_cheeses(my_cheeses.stack, cheeses_received, my_cheeses_path)
                     window.chat.append("my new CS: " + json.dumps(my_cheeses.stack))
-
-                pass
 
     t = threading.Thread(target=handle, args=(addr, port, window,))
     return t
@@ -204,13 +247,13 @@ class Window(QDialog):
         self.btnConnect.clicked.connect(self.connectTo)
         self.showMemList.clicked.connect(self.show)
         self.btnSendCheese.clicked.connect(self.sendCheese)
-        self.btnAskCheese.clicked.connect(self.askCheese)
+        self.btnShowCS.clicked.connect(self.showCS)
         self.btnReqCS.clicked.connect(self.reqCS)
 
     @pyqtSlot()
     def reqMemList(self):
-        req = "REQ_MEM_LIST"
-        socketToTracker[0].send(b'\x02' + bytes(req, 'utf-8'))
+        # req = "REQ_MEM_LIST"
+        socketToTracker[0].send(b'\x02')
 
     @pyqtSlot(str)
     def onActivated(self, text):
@@ -238,21 +281,23 @@ class Window(QDialog):
         elif self.desToSend.text() == "AllClients":
             new_mined_block = json.dumps(my_cheeses.stack[-1])
             window.chat.append("sent cheese: " + new_mined_block)
+            bytes_new_mined_block = bytes(new_mined_block, 'utf-8')
+            size_data = len(bytes_new_mined_block)
+            size_data_bytes = size_data.to_bytes(2, byteorder='big')
             for s in socketToMembers:
-                s.send(b'\x07' + bytes(new_mined_block, 'utf-8'))
+                s.send(b'\x07' + size_data_bytes + bytes_new_mined_block)
 
     @pyqtSlot()
-    def askCheese(self):
-        window.chat.append("need to ask for cheese")
+    def showCS(self):
+        window.chat.append("my new CS: " + json.dumps(my_cheeses.stack))
 
     @pyqtSlot()
     def reqCS(self):
         if self.desToSend.text() == "destination":
             window.chat.append("Select destination pls!")
         elif self.desToSend.text() == "AllClients":
-            req = "REQ_CS_LENGTH"
             for s in socketToMembers:
-                s.send(b'\x05' + bytes(req, 'utf-8'))
+                s.send(b'\x05' + b'\x01')
         window.chat.append("sent a query for Cheese Stack")
 
 
@@ -261,9 +306,7 @@ if __name__ == '__main__':
     window = Window()
     MemberToMemberServer(member_address, server_port, window).start()
     my_cheeses = myCheeses()
-    CheeseThread().start()
+    loadCheeses()
+    CheeseMining(window).start()
     window.exec()
     sys.exit(app.exec_())
-
-
-
