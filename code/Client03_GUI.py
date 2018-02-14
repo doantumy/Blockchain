@@ -15,7 +15,8 @@ socketToTracker = []
 socketToMembers = []
 tracker_port = 9999
 server_port = 10003
-member_address = 'localhost'
+tracker_address = '172.20.10.14'
+member_address = '172.20.10.2'
 member_name = "Member03"
 memberList = []
 my_cheeses_path = "E:/MLDM/Computer Networks/2018-net-f/data/" + member_name + ".json"
@@ -264,7 +265,7 @@ class Window(QDialog):
         if self.desToSend.text() == "destination":
             window.chat.append("Select destination pls!")
         elif self.desToSend.text() == "Tracker":
-            MemberToTracker(member_address, tracker_port, window).start()
+            MemberToTracker(tracker_address, tracker_port, window).start()
         elif self.desToSend.text() == "AllClients":
             for mem in memberList:
                 addr = mem.split(":")

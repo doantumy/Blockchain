@@ -14,7 +14,8 @@ import random
 socketToTracker = []
 socketToMembers = []
 tracker_port = 9999
-member_address = 'localhost'
+tracker_address = '172.20.10.14'
+member_address = '172.20.10.2'
 name = "Transactor"
 memberList = []
 
@@ -137,7 +138,7 @@ class Window(QDialog):
 
     @pyqtSlot()
     def connectToTracker(self):
-        MemberToTracker(member_address, tracker_port, window).start()
+        MemberToTracker(tracker_address, tracker_port, window).start()
 
     @pyqtSlot()
     def startSending(self):
