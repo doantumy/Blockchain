@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QScrollBar, QSplitter, QTableWidgetItem, QTableWidge
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.uic import loadUi
 import cheese
-
+import random
 
 
 socketToTracker = []
@@ -17,6 +17,11 @@ tracker_port = 9999
 member_address = 'localhost'
 name = "Transactor"
 memberList = []
+
+class flag():
+    def __init__(self):
+        self.sending = False
+
 
 def MemberToTracker(addr, port, window):
     def sendMsg(sock):
@@ -40,14 +45,14 @@ def MemberToTracker(addr, port, window):
             if header == b'\x01':
                 size = int.from_bytes(sock.recv(2), byteorder='big')
                 data = sock.recv(size)
-                window.chat.appendPlainText(data.decode("utf-8"))
+                window.chat.append(data.decode("utf-8"))
             if header == b'\x02':
                 size = int.from_bytes(sock.recv(2), byteorder='big')
                 data = sock.recv(size)
                 for el in json.loads(data):
                     memberList.append(el)
                 print(memberList)
-                window.chat.appendPlainText("Members List: " + str(memberList))
+                window.chat.append("Members List: " + str(memberList))
 
     def send_server_port(sock):
         sock.send(b'\x03')
@@ -71,17 +76,42 @@ def MemberToMemberClient(addr, port, window):
                 size_int = int.from_bytes(size, byteorder='big')
                 msg = sock.recv(size_int)
                 print(str(msg, 'utf-8'))
-                window.chat.appendPlainText(str(msg, 'utf-8'))
+                window.chat.append(str(msg, 'utf-8'))
 
     t = threading.Thread(target=handle, args=(addr, port, window,))
     return t
 
+
 # Auto create trans after 10secs
-# Transactions list contains dict objects of random transactions
-def auto_trans():
-    def handle():
-        pass
-    t = threading.Thread(target=handle, args=(addr, port, window,))
+# Transactions will be created automatically based on the number of transaction provided until it is 0
+# Sender remains the same, receiver will be randomly selected among the list of receiver (public keys list)
+def auto_trans(number_of_transaction, window):
+    def handle(number_of_transaction, window, delay=5):
+        while True:
+            if fg.sending:
+                i = 0
+                while i <= number_of_transaction - 1:
+                    if fg.sending == False:
+                        break
+                    keys_sender = cheese.key_generator()
+                    private_key_sender = keys_sender[0]
+                    public_key_sender = keys_sender[1]
+
+                    keys_receiver = cheese.key_generator()
+                    public_key_receiver = keys_receiver[1]
+
+                    random_amount = random.randint(1, 10)
+                    new_tran = cheese.new_trans(private_key_sender, public_key_sender, public_key_receiver, random_amount)
+                    new_tran_str = json.dumps(new_tran)
+                    window.chat.append(new_tran_str)
+                    encode_trans = bytes(new_tran_str, 'utf-8')
+                    size_data = len(encode_trans).to_bytes(2, byteorder='big')
+                    for sock in socketToMembers:
+                        sock.send(b'\x08' + size_data + encode_trans)
+
+                    time.sleep(delay)
+                    i += 1
+    t = threading.Thread(target=handle, args=(number_of_transaction, window))
     return t
 
 class Window(QDialog):
@@ -94,7 +124,7 @@ class Window(QDialog):
         self.btnConTracker.clicked.connect(self.connectToTracker)
         self.btnConClients.clicked.connect(self.connectToClients)
         self.btnStart.clicked.connect(self.startSending)
-
+        self.btnStop.clicked.connect(self.stopSending)
     @pyqtSlot()
     def reqMemList(self):
         socketToTracker[0].send(b'\x02')
@@ -111,12 +141,19 @@ class Window(QDialog):
 
     @pyqtSlot()
     def startSending(self):
-        auto_trans().start()
+        fg.sending = True
+        print("start sending transactions")
 
+    @pyqtSlot()
+    def stopSending(self):
+        fg.sending = False
+        print("stop sending transactions")
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = Window()
+    fg = flag()
+    auto_trans(100, window).start()
     window.exec()
     sys.exit(app.exec_())

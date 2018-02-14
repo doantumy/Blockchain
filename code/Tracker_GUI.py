@@ -64,6 +64,7 @@ def Tracker(window):
                     p = peer.split(":")
                     if p[0] == str(a[0]) and p[1] == str(a[1]):
                         client_peers.remove(peer)
+                print("peers after removing transactor: ", str(client_peers))
             # for connection in self.connections:
             #     connection.send(data)
             if not header:

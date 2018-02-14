@@ -3,6 +3,7 @@ import json
 import datetime
 import io
 import time
+import random
 from ecdsa import VerifyingKey, SigningKey, SECP256k1, BadSignatureError
 
 # Ref: https://medium.com/crypto-currently/lets-build-the-tiniest-blockchain-e70965a248b
@@ -28,8 +29,6 @@ Def Lists:
 my_cheese_stack = []
 trans_list = []
 
-
-
 def blue_cheese():
 
     cheese = {}
@@ -52,34 +51,30 @@ def hash_smell(index, time_stamp, transactions, nonce, parent_smell):
 def proof_of_work(index, time_stamp, transactions, parent_smell):
     nonce = 0
     hash_zero = False
-    smell = None
+
     while hash_zero is False:
         nonce += 1
         smell = hash_smell(index, time_stamp, transactions, nonce, parent_smell)
-        if smell.startswith('0'):
+        if smell.startswith('0000'):
             hash_zero = True
-
     return nonce, smell
+
 
 
 # When miner receives a transaction, his name and reward will be added into the transaction
 # If they can mine the block, this reward will be his money as part of the transactions collection
+def collect_trans(trans_lst, trans_details, miner, reward=1):
+    # Check signature of the transaction
+    mess = str(trans_details['to']) + str(trans_details['amount'])
+    valid = verifying_trans(mess.encode('utf-8'), trans_details['signature'], trans_details['from'])
+    # If signature is valid, add transaction into transaction list for later mining
+    if valid:
+        trans_details['miner'] = miner
+        trans_details['reward'] = reward
+        # Add the transaction details into current transaction list
+        trans_lst.append(trans_details)
+    # return trans_lst
 
-
-def collect_trans(trans_list, trans_details, miner, reward=1):
-    trans_details['miner'] = miner
-    trans_details['reward'] = reward
-    # Add the transaction details into current transaction list
-    trans_list.append(trans_details)
-    return trans_list
-
-
-# New transaction details to the others in json format
-
-
-def new_trans(sender, receiver, amount):
-    trans_details = {'from': sender, 'to': receiver, 'amount': amount}
-    return trans_details
 
 
 # transactions: List contains dict obj inside
@@ -88,40 +83,35 @@ def new_trans(sender, receiver, amount):
 # and add their identity into this list for reward if they successfully mined it.
 # Mining will be for the whole list with other information
 
-
-def cheese_mining(cheese_stack, transactions):
+def cheese_mining(cheese_stack, transactions, file_path):
     # Convert cheese_stack into dict object
     index = cheese_stack[-1]['index'] + 1
     time_stamp = datetime.datetime.now()
     parent_smell = cheese_stack[-1]['smell']
 
     # Implement Proof of Work to find a nonce that generate hash starts with 0
-    nonce, smell = proof_of_work(index,time_stamp,transactions,parent_smell)
+    nonce, smell = proof_of_work(index, time_stamp, transactions, parent_smell)
 
     # Return newly mined cheese block
     cheese = {}
     cheese['index'] = index
     cheese['timestamp'] = str(time_stamp)
     cheese['transactions'] = []
-    # i = 0
-    # while i <= len(transactions) - 1:
-    #     cheese['transactions'].append({'from': transactions[i]['from'], 'to': transactions[i]['to'],
-    #                                    'amount': transactions[i]['amount'],
-    #                                     'miner': transactions[i]['miner'], 'reward': transactions[i]['reward']})
-    #     i +=1
-
     for trans in transactions:
         cheese['transactions'].append(trans)
 
     cheese['previous_smell'] = parent_smell
     cheese['nonce'] = nonce
     cheese['smell'] = smell
-
-    return cheese
+    if validate_cheese(cheese_stack[-1], cheese):
+        cheese_stack.append(cheese)
+        store_cheese_stack(cheese_stack, file_path)
+        return True
+    else:
+        return  False
+    # return cheese
 
 # Update current cheese stack list with whole new cheese stack
-
-
 def update_cheese_stack(my_cheese_stack, received_index):
     my_stack_length = my_cheese_stack[-1]["index"]
     if received_index > my_stack_length:
@@ -132,7 +122,6 @@ def update_cheese_stack(my_cheese_stack, received_index):
 
 # Add new cheese into cheese_stack when miner sends new mined cheese
 # cheese_stack can be loaded from local drive
-
 def add_mined_cheese(my_cheese_stack, cheese, file_path):
     if validate_cheese(my_cheese_stack[-1], cheese):
         my_cheese_stack.append(cheese)
@@ -186,6 +175,7 @@ def validate_cheese(previous_cheese, next_cheese):
     new_hash_smell = hash_smell(new_index, new_time_stamp, new_transactions, new_nonce, new_parent_smell)
 
     if new_index != index:
+        print("error0")
         print(index)
         print(new_index)
         return False
@@ -214,16 +204,17 @@ def validate_cheese_stack(received_cheese_stack_list):
     return valid
 
 
-# Auto create trans after 10secs
-# Transactions list contains dict objects of random transactions
-def auto_trans(delay, transactions_list):
-    length = len(transactions_list)
-    i = 0
-    while i <= length - 1:
-        new_tran = new_trans(transactions_list[i]['from'], transactions_list[i]['to'], transactions_list[i]['amount'])
-        print(new_tran)
-        time.sleep(delay)
-        i +=1
+# New transaction details to the others in json format
+# To create new transaction, sender must know public key of receiver
+def new_trans(private_key_sender, public_key_sender, pubic_key_receiver, amount):
+    mess = pubic_key_receiver + str(amount)
+    signature = signing_trans(mess.encode('utf-8'), private_key_sender)
+    trans_details = {'from': public_key_sender, 'to': pubic_key_receiver, 'amount': amount, 'signature': signature}
+    return trans_details
+
+
+
+
 
 
 # Create public & private key random
@@ -257,7 +248,6 @@ def verifying_trans(message, signature, public_key_string):
 
 # Load keys from file if there exists
 # If not, new keys will be generated and saved to hard drive
-
 def key_load():
     private_key_file = 'sk.key'
     public_key_file = 'vk.key'
@@ -271,6 +261,7 @@ def key_load():
         open(public_key_file, "w").write(keys[1])
         print('New keys created.')
         return keys
+
 #
 # my_blue_cheese = cheese.blue_cheese()
 # my_cheeses.stack.append(my_blue_cheese)

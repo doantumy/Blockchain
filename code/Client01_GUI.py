@@ -8,6 +8,8 @@ from PyQt5.QtWidgets import QScrollBar, QSplitter, QTableWidgetItem, QTableWidge
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.uic import loadUi
 import cheese
+import queue
+
 
 socketToTracker = []
 socketToMembers = []
@@ -19,19 +21,39 @@ memberList = []
 my_cheeses_path = "E:/MLDM/Computer Networks/2018-net-f/data/" + member_name + ".json"
 
 
+
 class myCheeses:
     def __init__(self):
         self.stack = []
-        self.processed_trans_list = []
+        self.received_trans_list = queue.Queue()
 
 
-def CheeseThread():
-    def handle():
-        my_cheeses.stack = cheese.load_cheese_stack(my_cheeses_path)
-        print(my_cheeses.stack)
 
-    t = threading.Thread(target=handle)
+def CheeseMining(window):
+    def handle(window):
+        trans_to_mine = []
+        while True:
+            while len(trans_to_mine) < 3:
+                cheese.collect_trans(trans_to_mine, my_cheeses.received_trans_list.get(), member_name)
+            if cheese.cheese_mining(my_cheeses.stack, trans_to_mine, my_cheeses_path):
+                new_mined_block = json.dumps(my_cheeses.stack[-1])
+                bytes_new_mined_block = bytes(new_mined_block, 'utf-8')
+                size_data = len(bytes_new_mined_block).to_bytes(2, byteorder='big')
+                for s in socketToMembers:
+                    s.send(b'\x07' + size_data + bytes_new_mined_block)
+                print("sent new mined cheese!")
+                window.chat.append("sent new mined cheese!" )
+            else:
+                print("it's too late for mining!")
+            trans_to_mine = []
+
+
+    t = threading.Thread(target=handle, args=(window,), daemon=True)
     return t
+
+def loadCheeses():
+    my_cheeses.stack = cheese.load_cheese_stack(my_cheeses_path)
+    print(my_cheeses.stack)
 
 
 def MemberToTracker(addr, port, window):
@@ -106,8 +128,10 @@ def MemberToMemberServer(address, port, window):
                 data = c.recv(buf)
                 new_cheese = json.loads(data)
                 if cheese.add_mined_cheese(my_cheeses.stack, new_cheese, my_cheeses_path):
-                    window.chat.append("added new mined cheese: " + json.dumps(new_cheese))
+                    print("added new mined cheese: ", new_cheese )
+                    window.chat.append("added new mined cheese! " )
                 else:
+                    print("new mined cheese is not valid")
                     window.chat.append("new mined cheese is not valid")
             if header == b'\x05':
                 window.chat.append("received request for CS from " + str(a[0]) + ':' + str(a[1]))
@@ -129,8 +153,15 @@ def MemberToMemberServer(address, port, window):
                     size_data_bytes = size_data.to_bytes(2, byteorder='big')
                     c.send(b'\x05' + b'\x02' + size_data_bytes + bytes_cheese_string)
                     print("sent cheeses!")
-            # for connection in self.connections:
-            #     connection.send(data)
+            if header == b'\x08':
+                size = c.recv(2)
+                buf = int.from_bytes(size, byteorder='big')
+                data = c.recv(buf)
+                transaction = json.loads(data)
+                print("received transaction: ", transaction)
+                my_cheeses.received_trans_list.put(transaction)
+                window.chat.append("received a new transaction")
+
             if not header:
                 print(str(a[0]) + ':' + str(a[1]), "disconnected")
                 connections.remove(c)
@@ -268,6 +299,7 @@ if __name__ == '__main__':
     window = Window()
     MemberToMemberServer(member_address, server_port, window).start()
     my_cheeses = myCheeses()
-    CheeseThread().start()
+    loadCheeses()
+    CheeseMining(window).start()
     window.exec()
     sys.exit(app.exec_())
