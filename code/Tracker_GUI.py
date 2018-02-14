@@ -60,7 +60,7 @@ def Tracker(window):
                 data_string = json.dumps(peers_to_send)
                 encode_data = bytes(data_string, "utf-8")
                 size = len(encode_data).to_bytes(2, byteorder='big')
-                c.send(b'\x02' + size + encode_data)
+                c.sendall(b'\x02' + size + encode_data)
             elif (header == b'\x03'):
                 for peer in client_peers:
                     p = peer.split(":")
@@ -81,7 +81,7 @@ def Tracker(window):
         encode_msg = bytes(msg, "utf-8")
         len_msg = len(encode_msg)
         size = len_msg.to_bytes(2, byteorder='big')
-        c.send(b'\x01' + size + encode_msg )
+        c.sendall(b'\x01' + size + encode_msg )
 
     t = threading.Thread(target=handle, args=(window,))
     return t

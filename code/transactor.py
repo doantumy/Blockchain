@@ -14,7 +14,7 @@ import random
 socketToTracker = []
 socketToMembers = []
 tracker_port = 9999
-tracker_address = '172.20.10.14'
+tracker_address = '172.18.250.18'
 name = "Transactor"
 memberList = []
 
@@ -26,7 +26,7 @@ class flag():
 def MemberToTracker(addr, port, window):
     def sendMsg(sock):
         while True:
-            sock.send(bytes(input(""), 'utf-8'))
+            sock.sendall(bytes(input(""), 'utf-8'))
 
     def handle(address, port, window):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -56,7 +56,7 @@ def MemberToTracker(addr, port, window):
                 window.chat.append("Members List: " + str(memberList))
 
     def send_server_port(sock):
-        sock.send(b'\x03')
+        sock.sendall(b'\x03')
 
     t = threading.Thread(target=handle, args=(addr, port, window,))
     return t
@@ -108,7 +108,7 @@ def auto_trans(number_of_transaction, window):
                     encode_trans = bytes(new_tran_str, 'utf-8')
                     size_data = len(encode_trans).to_bytes(2, byteorder='big')
                     for sock in socketToMembers:
-                        sock.send(b'\x08' + size_data + encode_trans)
+                        sock.sendall(b'\x08' + size_data + encode_trans)
 
                     time.sleep(delay)
                     i += 1
@@ -128,7 +128,7 @@ class Window(QDialog):
         self.btnStop.clicked.connect(self.stopSending)
     @pyqtSlot()
     def reqMemList(self):
-        socketToTracker[0].send(b'\x02')
+        socketToTracker[0].sendall(b'\x02')
 
     @pyqtSlot()
     def connectToClients(self):
