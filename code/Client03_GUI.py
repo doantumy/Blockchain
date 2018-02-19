@@ -15,12 +15,11 @@ socketToTracker = []
 socketToMembers = []
 tracker_port = 9999
 server_port = 10003
-tracker_address = '172.18.250.18'
-member_address = '172.18.250.19'
+tracker_address = '192.168.0.100' #'172.18.250.18'
+member_address = '192.168.0.100' #'172.18.250.19'
 member_name = "Member03"
 memberList = []
 my_cheeses_path = "../data/" + member_name + ".json"
-
 
 
 class myCheeses:
@@ -124,6 +123,16 @@ def MemberToMemberServer(address, port, window):
             print("peers: ", peers)
             reply_to_member(c)
 
+    def recvall(sock, n):
+        # Helper function to recv n bytes or return None if EOF is hit
+        data = b''
+        while len(data) < n:
+            packet = sock.recv(1)
+            if not packet:
+                return None
+            data += packet
+        return data
+
     def handler(c, a, window):
         while True:
             header = c.recv(1)
@@ -131,7 +140,7 @@ def MemberToMemberServer(address, port, window):
             if (header == b'\x07'):
                 size = c.recv(2)
                 buf = int.from_bytes(size, byteorder='big')
-                ch = c.recv(buf)
+                ch = recvall(c, buf)#c.recv(buf)
                 new_cheese = json.loads(ch)
                 if cheese.add_mined_cheese(my_cheeses.stack, new_cheese, my_cheeses_path):
                     my_cheeses.flag.set()
