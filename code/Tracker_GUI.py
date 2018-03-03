@@ -13,7 +13,7 @@ from PyQt5.QtCore import  pyqtSlot
 from PyQt5.uic import  loadUi
 
 tracker_port = 9999
-tracker_address = '192.168.0.100' #'172.20.10.14'
+tracker_address = '172.20.10.8'
 
 def Tracker(window):
     connections = []
