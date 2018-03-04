@@ -9,7 +9,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.uic import loadUi
 import cheese
 import queue
-
+from PyQt5.QtGui import QIcon, QPixmap
 
 socketToTracker = []
 socketToMembers = []
@@ -260,6 +260,11 @@ class Window(QDialog):
         self.btnSendCheese.clicked.connect(self.sendCheese)
         self.btnShowCS.clicked.connect(self.showCS)
         self.btnReqCS.clicked.connect(self.reqCS)
+
+        # Create backfround
+        pixmap = QPixmap('../img/bg.png')
+        self.background.setPixmap(pixmap)
+
 
     @pyqtSlot()
     def reqMemList(self):

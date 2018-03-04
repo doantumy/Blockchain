@@ -12,6 +12,7 @@ from PyQt5.QtCore import QCoreApplication, QSize
 from socketserver import ThreadingMixIn
 from PyQt5.QtCore import  pyqtSlot
 from PyQt5.uic import  loadUi
+from PyQt5.QtGui import QIcon, QPixmap
 
 tracker_port = 9999
 tracker_address = 'localhost'
@@ -94,7 +95,9 @@ class Window(QDialog):
         loadUi("trackerapp.ui", self)
         self.setWindowTitle("Tracker")
 
-
+        # Create backfround
+        pixmap = QPixmap('../img/bgTracker.png')
+        self.background.setPixmap(pixmap)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

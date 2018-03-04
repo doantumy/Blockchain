@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QScrollBar, QSplitter, QTableWidgetItem, QTableWidge
     QLineEdit
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.uic import loadUi
+from PyQt5.QtGui import QIcon, QPixmap
 import cheese
 import random
 
@@ -126,6 +127,11 @@ class Window(QDialog):
         self.btnConClients.clicked.connect(self.connectToClients)
         self.btnStart.clicked.connect(self.startSending)
         self.btnStop.clicked.connect(self.stopSending)
+
+        # Create backfround
+        pixmap = QPixmap('../img/bgTran.png')
+        self.background.setPixmap(pixmap)
+
     @pyqtSlot()
     def reqMemList(self):
         socketToTracker[0].sendall(b'\x02')

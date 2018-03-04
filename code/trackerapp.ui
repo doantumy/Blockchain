@@ -52,7 +52,7 @@
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background: url(E:/MLDM/Computer Networks/2018-net-f/img/bgTracker.png)</string>
+    <string notr="true"/>
    </property>
    <property name="text">
     <string/>

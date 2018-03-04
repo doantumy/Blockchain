@@ -96,12 +96,12 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>717</width>
+     <width>720</width>
      <height>400</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background: url(E:/MLDM/Computer Networks/2018-net-f/img/bgTran.png)</string>
+    <string notr="true"/>
    </property>
    <property name="text">
     <string/>
