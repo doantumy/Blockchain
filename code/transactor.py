@@ -14,7 +14,7 @@ import random
 socketToTracker = []
 socketToMembers = []
 tracker_port = 9999
-tracker_address = '192.168.0.100'#'172.18.250.18'
+tracker_address = 'localhost'#'172.18.250.18'
 name = "Transactor"
 memberList = []
 

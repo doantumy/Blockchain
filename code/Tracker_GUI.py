@@ -7,13 +7,14 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QScrollBar, QSplitter, QTableWidgetItem, QTableWidget, QComboBox, QVBoxLayout, QGridLayout, \
     QDialog, QWidget, QPushButton, QApplication, QMainWindow, QAction, QMessageBox, QLabel, QTextEdit, QProgressBar, \
     QLineEdit
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtGui import QImage, QPalette, QBrush
+from PyQt5.QtCore import QCoreApplication, QSize
 from socketserver import ThreadingMixIn
 from PyQt5.QtCore import  pyqtSlot
 from PyQt5.uic import  loadUi
 
 tracker_port = 9999
-tracker_address = '172.20.10.8'
+tracker_address = 'localhost'
 
 def Tracker(window):
     connections = []
@@ -92,11 +93,8 @@ class Window(QDialog):
         super(Window, self).__init__()
         loadUi("trackerapp.ui", self)
         self.setWindowTitle("Tracker")
-    #     self.ReqMemList.clicked.connect(self.reqMemList)
-    # @pyqtSlot()
-    # def reqMemList(self):
-    #     req = "REQ_MEM_LIST"
-    #     sockets[0].send(b'\x02'+bytes(req, 'utf-8'))
+
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

@@ -7,17 +7,20 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>333</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Tracker</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QPushButton" name="btnAlive">
    <property name="geometry">
     <rect>
-     <x>280</x>
-     <y>30</y>
+     <x>310</x>
+     <y>70</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -29,16 +32,35 @@
   <widget class="QTextEdit" name="chat">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>221</width>
-     <height>281</height>
+     <x>0</x>
+     <y>60</y>
+     <width>301</width>
+     <height>251</height>
     </rect>
    </property>
    <property name="readOnly">
     <bool>true</bool>
    </property>
   </widget>
+  <widget class="QLabel" name="background">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>400</width>
+     <height>333</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background: url(E:/MLDM/Computer Networks/2018-net-f/img/bgTracker.png)</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <zorder>background</zorder>
+  <zorder>btnAlive</zorder>
+  <zorder>chat</zorder>
  </widget>
  <resources/>
  <connections/>

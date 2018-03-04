@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>717</width>
-    <height>310</height>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>280</y>
+     <y>370</y>
      <width>131</width>
      <height>23</height>
     </rect>
@@ -30,7 +30,7 @@
    <property name="geometry">
     <rect>
      <x>160</x>
-     <y>280</y>
+     <y>370</y>
      <width>121</width>
      <height>23</height>
     </rect>
@@ -43,7 +43,7 @@
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>280</y>
+     <y>370</y>
      <width>131</width>
      <height>23</height>
     </rect>
@@ -56,7 +56,7 @@
    <property name="geometry">
     <rect>
      <x>440</x>
-     <y>280</y>
+     <y>370</y>
      <width>121</width>
      <height>23</height>
     </rect>
@@ -69,7 +69,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>10</y>
+     <y>100</y>
      <width>701</width>
      <height>261</height>
     </rect>
@@ -82,7 +82,7 @@
    <property name="geometry">
     <rect>
      <x>570</x>
-     <y>280</y>
+     <y>370</y>
      <width>121</width>
      <height>23</height>
     </rect>
@@ -91,6 +91,29 @@
     <string>Stop Sending</string>
    </property>
   </widget>
+  <widget class="QLabel" name="background">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>717</width>
+     <height>400</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background: url(E:/MLDM/Computer Networks/2018-net-f/img/bgTran.png)</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <zorder>background</zorder>
+  <zorder>btnConTracker</zorder>
+  <zorder>btnGetMemList</zorder>
+  <zorder>btnConClients</zorder>
+  <zorder>btnStart</zorder>
+  <zorder>chat</zorder>
+  <zorder>btnStop</zorder>
  </widget>
  <resources/>
  <connections/>
