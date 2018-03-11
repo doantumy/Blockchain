@@ -44,7 +44,7 @@ Each transaction will be a JSON object detailing the sender of the coin, the rec
   "amount": 3
 }
 ```
-
+![alt text](./img/transaction.png)
 ## Cheese mining
 When new transactions are broadcast in the network, **member**s will collect all of them to put into a single `Cheese`. They will verify the transaction (based on digital signatures, spending histories of the senders to prevent fraud ownership and over-spending). They will then try to solve the proof-of-work problem by finding a `nonce` to generate a hash string (`smell`) that begins with at least two `0`. If miner successfully found it,  he will approve the `Cheese`, add it to the longest chain he has and send this new mined `Cheese` to all over the network.
 
@@ -84,7 +84,10 @@ The algorithm must check :
 ![Sequence diagram](./img/newblock.PNG)
 #### Ask cheese(s) from other member(s)
 ![Sequence diagram](./img/askCheese.PNG)
-
+### Member connection and syncs
+![Sequence diagram](./img/sync.png)
+### Member broadcasting
+![Sequence diagram](./img/broadcast.png)
 # Message structure
 ## Interactions between Members and Tracker
 | Event | Request Message | Response Message | Description |
