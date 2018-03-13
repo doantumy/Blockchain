@@ -38,20 +38,22 @@ For `BlueCheese`- the original cheese - it is defined nearly the same with norma
 ## Transaction format
 Each transaction will be a JSON object detailing the sender of the coin, the receiver of the coin,the amount of CheeseCoin that is being transferred, a signature computed by a message and the private key of the sender, miner information, and reward for the miner, e.g
 ```json
-{"index": 5, 
+{
+"index": 5, 
 "timestamp": "2018-03-03 21:38:33.904931", 
 "transactions": 
-[{
-"from":"18d55fc7da4281a0ef909864d8482c7c9985ec91bad34f93cb4886e5eab09bc4878fff0f37e47dc9dfdc0a3c321dfa8068ca79e664a190990ebea6006a063d43", 
-"to":"27fc884268b79bcb8ac1535a635c327fe17570fea51628fce4531a2cdbb867e4b23775dcff96b18d1b9194229aab3c793f3e66411d1ed588d9676aa367f231bb", 
-"amount": 10, 
-"signature":"b0b03bda3ca5be9893494bf65786c220eabb8242bbd27971d539f4ece2940625868390c44e3acddaa16466377c13381fe631dcdbffa8becfd8426512b2bc1424", 
-"miner": "Member01", 
-"reward": 1
-}], 
+	[{
+	"from":"18d55fc7da4281a0ef909864d8482c7c9985ec91bad34f93cb4886e5eab09bc4878fff0f37e47dc9dfdc0a3c321dfa8068ca79e664a190990ebea6006a063d43", 
+	"to":"27fc884268b79bcb8ac1535a635c327fe17570fea51628fce4531a2cdbb867e4b23775dcff96b18d1b9194229aab3c793f3e66411d1ed588d9676aa367f231bb", 
+	"amount": 10, 
+	"signature":"b0b03bda3ca5be9893494bf65786c220eabb8242bbd27971d539f4ece2940625868390c44e3acddaa16466377c13381fe631dcdbffa8becfd8426512b2bc1424", 
+	"miner": "Member01", 
+	"reward": 1
+	}], 
 "previous_smell": "0bc736a89e197abae7b1ef2163941f6309ac195b", 
 "nonce": 54127, 
-"smell": "00006b96d6d11cce4739e8dd8344508b7287db95"}
+"smell": "00006b96d6d11cce4739e8dd8344508b7287db95"
+}
 ```
 ![alt text](./img/transaction.png)
 ## Cheese mining
