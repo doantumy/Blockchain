@@ -14,3 +14,15 @@ In general, we finished our objectives before deadline. However, the schedule wa
 |---|---|---|---|---|---|---|---|
 |Tuan-Anh TRAN|Research + planning + protocol.md|6h|P2P network + user interface + synchronization|52h|Testing project + Readme.md + retospective.md + auto-evaluation.md|9h|67h|
 |Tu-My DOAN|Research + protocol.md|5h|Bockchain + Transaction + Signature|40h|Design poster, system background + Readme.md + auto-evaluation.md|9h|54h|
+
+
+
+## Development Practices
+### Documentation
+**[Good]** All documents and sequence diagrammes are written in Markdown!
+### Git
+**[Good]** Commit and push often. <br/>
+**[Bad]** Provide commit messages
+### Code
+**[Good]** Clean and well formalized codes. <br/>
+**[Bad]** Not many comment codes. <br/>
