@@ -3,10 +3,10 @@
 The project is about developing a blockchain peer-to-peer system called Cheese Coin. This is a network system which is based on the ideas of Bitcoin but simpler. 
 In this system we have implemented the tracker to keep track of other peer-to-peer users in the network, simulating the mining feature with proof-of-work with difficulty of `0000`, and auto-creation of transaction with signature.  
 
+## Project Poster
+![](./img/cheesecoin_poster.png)
 
 ## Getting Started
-
-
 
 ### Prerequisites
 
@@ -79,5 +79,3 @@ By default, one transaction will be released every 5 seconds.
 
 Please read [protocol.md](https://github.com/UJM-INFO/2018-net-f/blob/master/protocol.md) for details on our code of conduct.
 
-## Project Poster
-![](./img/cheesecoin_poster.png)
