@@ -1,6 +1,8 @@
 # Project Title
 
-One Paragraph of project description goes here
+The project is about developing a blockchain peer-to-peer system called Cheese Coin. This is a network system which is based on the ideas of Bitcoin but simpler. 
+In this system we have implemented the tracker to keep track of other peer-to-peer users in the network, simulating the mining feature with proof-of-work with difficulty of `0000`, and auto-creation of transaction with signature.  
+
 
 ## Getting Started
 
@@ -70,7 +72,7 @@ By default, one transaction will be released every 5 seconds.
 ## Contributors
 
 * [Tuan-Anh TRAN](https://github.com/trantuananhvn93) 
-* [Tu-My DOAN]() 
+* [Tu-My DOAN](https://github.com/doantumy) 
 * [Na WANG]() 
 
 ## Contributing
