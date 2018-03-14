@@ -1,91 +1,80 @@
-![](./img/windows.PNG)
 # Project Title
 
 One Paragraph of project description goes here
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
-
-```
-Give examples
-```
+- The blockchain of each member is stocked in a file `.JSON` in the folder `data`.
+ You should make sure to have the same blockchain for all members at the beginning to run the test.
+ You can download the folder `data` or create it by yourself. 
+ - You need to download the files following for the interface:
+     ```
+    code/clientapp.ui
+    code/trackerapp.ui
+    code/transactor.ui
+    img/bg.png
+    img/bgTracker.png
+    img/bgTran.png
+     ```
 
 ### Installing
 
-A step by step series of examples that tell you have to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
+You need to declare the IP address and port number for `tracker`, `transactor`, and all `members`.
+Eg.
 
 ```
-until finished
+tracker_address = 'localhost'
+member_address = 'localhost'
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+By defaut, the port of members will be :
+
+```
+tracker_port = 9999 #Tracker
+server_port = 10001 #Member1
+server_port = 10002 #Member2
+server_port = 10003 #Member3
+```
+
 
 ## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
+Execute the files following:
 ```
-Give an example
-```
+code/Clien01_GUI.py
+code/Clien02_GUI.py
+code/Clien03_GUI.py
+code/Tracker.py
+code/transactor.py
+ ```
+### `Tracker` GUI
+![](./img/trackerGUI.PNG)
+### `Member` GUI
+![](./img/windows.PNG)
+1. Select `Tracker` in the combobox then click `Connect`.
+2. Click `ReqMemberlist` to ask for the Member List.
+3. Select `AllClients` in the combobox then click `Connect`.
+### `Transactor` GUI
+![](./img/transactorGUI.PNG)
+1. Click `ConnectTracker` then Click `getMemberlist` to get IP address of all members.
+2. Click `Connect Clients`.
+3. Start sending transactions by clicking `Start Sending`.
+By default, one transaction will be released every 5 seconds.
 
-### And coding style tests
+## System Structure
+![](./img/system_structure.png)
 
-Explain what these tests test and why
+## Contributors
 
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* [Tuan-Anh TRAN](https://github.com/trantuananhvn93) 
+* [Tu-My DOAN]() 
+* [Na WANG]() 
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
-## Authors
-
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
-
+Please read [protocol.md](https://github.com/UJM-INFO/2018-net-f/blob/master/protocol.md) for details on our code of conduct.
 
 
