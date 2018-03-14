@@ -13,3 +13,4 @@ In general, we finished our objectives before deadline. However, the schedule wa
  | Member |  Protocol | Time | Programming | Time| Documentation | Time | Total|
 |---|---|---|---|---|---|---|---|
 |Tuan-Anh TRAN|Research + protocol.md|6h|P2P network + user interface + synchronization|52h|Readme.md + retospective.md + auto-evaluation.md|9h|67h|
+|Tu-My DOAN|Research + protocol.md|5h|Bockchain + Transaction + Signature|36h|Design poster, system background + Readme.md + auto-evaluation.md|9h|50h|
