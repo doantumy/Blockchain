@@ -79,4 +79,5 @@ By default, one transaction will be released every 5 seconds.
 
 Please read [protocol.md](https://github.com/UJM-INFO/2018-net-f/blob/master/protocol.md) for details on our code of conduct.
 
-
+## Project Poster
+![](cheesecoin_poster.png)
