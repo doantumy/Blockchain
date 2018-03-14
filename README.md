@@ -73,7 +73,7 @@ By default, one transaction will be released every 5 seconds.
 
 * [Tuan-Anh TRAN](https://github.com/trantuananhvn93) 
 * [Tu-My DOAN](https://github.com/doantumy) 
-* [Na WANG]() 
+* [Na WANG](https://github.com/Nathaliewang) 
 
 ## Contributing
 
