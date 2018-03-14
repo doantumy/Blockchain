@@ -10,21 +10,6 @@ import threading
 # Ref: https://www.dlitz.net/software/pycrypto/doc/#introduction
 '''
 Author: DOAN Tu-My
-Def Lists:
-
-1. blue_cheese()
-2. hash_smell(index,time_stamp,transactions,nonce,parent_smell)
-3. proof_of_work(index,time_stamp,transactions,parent_smell)
-4. collect_trans(trans_list, trans_details, miner, reward)
-5. new_trans(sender, receiver, amount)
-6. cheese_mining(cheese_stack, transactions)
-7. update_cheese_stack(cheese_stack, file_name) - need to test
-8. add_cheese(cheese_stack, cheese)
-9. store_cheese_stack(cheese_stack, file_name)
-10.load_cheese_stack(file_name)
-11.validate_cheese(cheese_stack, cheese)
-12.
-
 '''
 my_cheese_stack = []
 trans_list = []
