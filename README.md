@@ -1,4 +1,4 @@
-# Project Title
+# Cheese Coin Project
 
 The project is about developing a blockchain peer-to-peer system called Cheese Coin. This is a network system which is based on the ideas of Bitcoin but simpler. 
 In this system we have implemented the tracker to keep track of other peer-to-peer users in the network, simulating the mining feature with proof-of-work with difficulty of `0000`, and auto-creation of transaction with signature.  
