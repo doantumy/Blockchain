@@ -19,7 +19,7 @@ In general, we finished our objectives before deadline. However, the schedule wa
 
 ## Development Practices
 ### Documentation
-**[Good]** All documents and sequence diagrammes are written in Markdown!
+**[Good]** All documents and sequence diagrams are written in Markdown!
 ### Git
 **[Good]** Commit and push often. <br/>
 **[Bad]** Provide commit messages
