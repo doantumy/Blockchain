@@ -68,6 +68,7 @@ By default, one transaction will be released every 5 seconds.
 
 ## System Structure
 ![](./img/system_structure.png)
+![](./img/cheese_stack.png)
 
 ## Contributors
 
