@@ -14,7 +14,7 @@ In general, we finished our objectives before deadline. However, the schedule wa
 |---|---|---|---|---|---|---|---|
 |Tuan-Anh TRAN|Research + planning + protocol.md|6h|P2P network + user interface + synchronization|52h|Testing project + Readme.md + retospective.md + auto-evaluation.md|9h|67h|
 |Tu-My DOAN|Research + protocol.md|5h|Blockchain + Transaction + Signature|40h|Design poster, system background + Readme.md + retospective.md|9h|54h|
-
+|Na WANG|Research + protocol.md|10h|Binary de_encoding to Cheese + Implementing|15h|Slides for presentation + Readme.md + retrospective.md + auto-evaluation.md|15h|40h|
 
 
 ## Development Practices
