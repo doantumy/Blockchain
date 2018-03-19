@@ -9,14 +9,14 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.uic import loadUi
 import cheese
 import queue
-
+from PyQt5.QtGui import QIcon, QPixmap
 
 socketToTracker = []
 socketToMembers = []
 tracker_port = 9999
 server_port = 10003
-tracker_address = '172.20.10.8' #'172.18.250.18'
-member_address = '172.20.10.8' #'172.18.250.19'
+tracker_address = '172.20.10.8'  #'172.18.250.18'
+member_address = '172.20.10.10'#'localhost' #'172.18.250.19'
 member_name = "Member03"
 memberList = []
 my_cheeses_path = "../data/" + member_name + ".json"
@@ -260,6 +260,11 @@ class Window(QDialog):
         self.btnSendCheese.clicked.connect(self.sendCheese)
         self.btnShowCS.clicked.connect(self.showCS)
         self.btnReqCS.clicked.connect(self.reqCS)
+
+        # Create backfround
+        pixmap = QPixmap('../img/bg.png')
+        self.background.setPixmap(pixmap)
+
 
     @pyqtSlot()
     def reqMemList(self):
