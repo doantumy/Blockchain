@@ -78,5 +78,5 @@ By default, one transaction will be released every 5 seconds.
 
 ## Contributing
 
-Please read [protocol.md](https://github.com/doantumy/Blockchain/edit/master/protocol.md) for details on our code of conduct.
+Please read [protocol.md](protocol.md) for details on our code of conduct.
 
