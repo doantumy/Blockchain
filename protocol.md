@@ -95,10 +95,7 @@ The algorithm must check :
 ![Sequence diagram](./img/newblock.PNG)
 #### Ask cheese(s) from other member(s)
 ![Sequence diagram](./img/askCheese.PNG)
-### Member connection and syncs
-![Sequence diagram](./img/sync.png)
-### Member broadcasting
-![Sequence diagram](./img/broadcast.png)
+
 # Message structure
 ## Interactions between Members and Tracker
 | Event | Request Message | Response Message | Description |
